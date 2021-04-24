@@ -2,7 +2,7 @@ import os
 import csv
 import networkx as nx
 import time
-from kmeans import k_means
+from kmeans import k_means, parallel_k_means
 
 
 def load_graph():
@@ -20,9 +20,16 @@ def load_graph():
     return G
 
 
-start = time.time()
+
 
 G = load_graph()
+
+start = time.time()
 k_means(G)
+
+print(time.time()-start)
+
+start = time.time()
+parallel_k_means(G, 4)
 
 print(time.time()-start)
