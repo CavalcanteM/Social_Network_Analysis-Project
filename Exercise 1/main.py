@@ -24,12 +24,14 @@ def load_graph():
 
 G = load_graph()
 
-start = time.time()
-k_means(G)
-
-print(time.time()-start)
 
 start = time.time()
 parallel_k_means(G, 4)
+
+print(time.time()-start)
+
+
+start = time.time()
+k_means(G)
 
 print(time.time()-start)
