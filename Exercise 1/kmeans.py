@@ -63,17 +63,16 @@ def init_phase(G):
 
 # This function add to the clusters all the node in samples
 # It is called by the naive and parallel implementation of k-means
-def cluster_k_means(G, cluster0, cluster1, cluster2, cluster3, samples=None):
+def cluster_k_means(G, cluster0, cluster1, cluster2, cluster3, samples=None, parallel=False):
     if samples == None:
         # Naive implementation
         samples = G.nodes()
         added = 4
-    else:
+    elif parallel:
         # Parallel implementation
-        # Because we stop the while when added = n, we have to know how many vertex in samples are
-        # already in the four starting cluster (they contain only one vertex)
+        # Because we stop the while when added = n, so we have to know how many vertex in samples are
+        # already in the four starting cluster (they contain only one vertex
         added = 0
-
         if list(cluster0)[0] in samples:
             added += 1
         if list(cluster1)[0] in samples:
@@ -82,6 +81,11 @@ def cluster_k_means(G, cluster0, cluster1, cluster2, cluster3, samples=None):
             added += 1
         if list(cluster3)[0] in samples:
             added += 1
+    # This case is used in the last part of parallel_k_means, in which we use the naive version because
+    # the remaining elements not yet clustered are in small number. In this case, in samples there are only
+    # node that are not in a cluster
+    else:
+        added = 0
 
     # cluster4 is used only for parallel implementation and in not connected graph.
     # We divided nodes in 4 group and there are a lot of nodes (2658) that have only one edge,
@@ -152,25 +156,25 @@ def k_means(G):
     clusters = cluster_k_means(G, cluster0, cluster1, cluster2, cluster3)
 
     # We save each cluster in a different file
-    with open("kmeans_result\\cluster0.txt", "w") as f:
+    with open("kmeans_result/cluster0.txt", "w") as f:
         for element in clusters[0]:
             f.write(element + "\n")
 
-    with open("kmeans_result\\cluster1.txt", "w") as f:
+    with open("kmeans_result/cluster1.txt", "w") as f:
         for element in clusters[1]:
             f.write(element + "\n")
 
-    with open("kmeans_result\\cluster2.txt", "w") as f:
+    with open("kmeans_result/cluster2.txt", "w") as f:
         for element in clusters[2]:
             f.write(element + "\n")
 
-    with open("kmeans_result\\cluster3.txt", "w") as f:
+    with open("kmeans_result/cluster3.txt", "w") as f:
         for element in clusters[3]:
             f.write(element + "\n")
 
     # if the graph is connected len(clusters[4]) will be equal to 0
     if len(clusters[4]) > 0:
-        with open("kmeans_result\\cluster4.txt", "w") as f:
+        with open("kmeans_result/cluster4.txt", "w") as f:
             for element in clusters[4]:
                 f.write(element + "\n")
 
@@ -204,7 +208,7 @@ def parallel_k_means(G, j):
             # Computation of clusters using parallelism
             with Parallel(n_jobs=j) as parallel:
                 cluster4 = set()
-                result = parallel(delayed(cluster_k_means)(G, cluster0, cluster1, cluster2, cluster3, X)
+                result = parallel(delayed(cluster_k_means)(G, cluster0, cluster1, cluster2, cluster3, X, True)
                                   for X in chunks(node_to_cluster, math.ceil(len(node_to_cluster) / j)))
                 # clusters concatenation with each result
                 for res in result:
@@ -214,56 +218,63 @@ def parallel_k_means(G, j):
                     cluster3 = cluster3 | res[3]
                     cluster4 = cluster4 | res[4]
 
-                print(len(cluster4))
                 if len(cluster4) == 0 or len(cluster4) == len(node_to_cluster):
                     # The cluster algorithm ends
                     done = True
                 else:
                     # We put the node without a cluster in 'node_to_cluster'
-                    node_to_cluster = cluster4
+                    node_to_cluster = G.subgraph(cluster4).nodes()     ### E' davvero l'unico modo per farlo?!?!
 
         else:
+            cluster4 = set()
             # We call the naive k-means algorithm to classify the remaining element because with
             # a small number of samples is not convenient use the parallel version
             result = cluster_k_means(G, cluster0, cluster1, cluster2, cluster3, cluster4)
             done = True
-            for res in result:
-                cluster0 = cluster0 | res[0]
-                cluster1 = cluster1 | res[1]
-                cluster2 = cluster2 | res[2]
-                cluster3 = cluster3 | res[3]
-                cluster4 = cluster4 | res[4]
+            cluster0 = cluster0 | result[0]
+            cluster1 = cluster1 | result[1]
+            cluster2 = cluster2 | result[2]
+            cluster3 = cluster3 | result[3]
+            cluster4 = cluster4 | result[4]
 
     # We save each cluster in a different file
-    with open("kmeans_parallel_result\\cluster0.txt", "w") as f:
+    with open("kmeans_parallel_result/cluster0.txt", "w") as f:
         for element in cluster0:
             f.write(element + "\n")
-    with open("kmeans_parallel_result\\cluster1.txt", "w") as f:
+    with open("kmeans_parallel_result/cluster1.txt", "w") as f:
         for element in cluster1:
             f.write(element + "\n")
-    with open("kmeans_parallel_result\\cluster2.txt", "w") as f:
+    with open("kmeans_parallel_result/cluster2.txt", "w") as f:
         for element in cluster2:
             f.write(element + "\n")
-    with open("kmeans_parallel_result\\cluster3.txt", "w") as f:
+    with open("kmeans_parallel_result/cluster3.txt", "w") as f:
         for element in cluster3:
             f.write(element + "\n")
 
     # cluster4 contains only the element that we can't add in cluster (not connected graph)
     if len(cluster4) > 0:
-        with open("kmeans_result\\cluster4.txt", "w") as f:
+        with open("kmeans_parallel_result/cluster4.txt", "w") as f:
             for element in cluster4:
                 f.write(element + "\n")
 
 
 
 # Optimized version of k-means. (ONLY FOR CONNECTED GRAPH)
-# The bottle neck of this problem is the intersection operation between set when the size of the set
-# grows too much. Too avoid this situation, when the nodes in clusters and their neighbors are of the
-# same size of the number of nodes in the graph, we stop to add the node in the set used for the
-# intersection.
-# N.B. There are 2658 nodes with only one edge, so it is possible that the last two nodes added in a cluster
-# are a leaves and its neighbor, making optimization useless. To avoid this, we give higher priority of
-# classification of the leaves' neighbors, so that we can use the optimized part as soon as possible.
+# The bottle neck of this problem is the intersection operation between set and the for cycle used to
+# build the list items_to_be_clustered. To remove this bottle neck, we use two new set:
+#
+# samples: it contains all the elements not added in a cluster yet
+# neighbors_cluster: it contains all the node in the clusters and their neighbors
+#
+# It can be proved that the intersection between this two set is equivalent to the for cycle at line 102,
+# reducing the complexity of that operation from O(n*min(degree(el),len(cluster)) to O(min(len(cluster),len(samples)).
+# Because we remove from samples each element added to a cluster, we have:
+# at the start of the algorithm len(samples) = n-4, but len(cluster) = 1 -> O(min(len(cluster),len(samples)) = O(1)
+# at the end, in the worst case, len(cluster) = n-4 , but len(samples) = 1 -> O(min(len(cluster),len(samples)) = 0(1)
+# in the middle of the algorithm, in the worst case, len(cluster) = n/2 and len(samples)=n/2 ---->
+# ----> O(min(len(cluster),len(samples))  = 0(n/2)
+# So we have, O(min(len(cluster),len(samples)) << O(n*min(degree(el),len(cluster))
+# N.B. These operations are repeated n times.
 def optimized_k_means(G):
     # Declaration of initial clusters
     vect = init_phase(G)
@@ -272,129 +283,72 @@ def optimized_k_means(G):
     cluster2 = {vect[2]}
     cluster3 = {vect[3]}
 
-    # Cluster used only for the intersection
-    intersection_cluster0 = {vect[0]}
-    intersection_cluster1 = {vect[1]}
-    intersection_cluster2 = {vect[2]}
-    intersection_cluster3 = {vect[3]}
-
-    # hp_node: Nodes with the higher priority
-    hp_nodes = set()
-    for node in G.nodes():
-        if G.degree(node) == 1:
-            n_node = G.neighbors(node)
-            if n_node[0] not in vect:
-                hp_nodes.add(G.neighbors(n_node))
-
-    print(len(hp_nodes))
-
     n = len(G.nodes())
+
+    # All the samples not added in the solution yet
+    samples = set(G.nodes())
+    for x in vect:
+        samples.remove(x)
+
     added = 4
 
-    # Set of the neighbors of the clustered node
+    # Set of clustered nodes and their neighbors
     neighbors_clusters = set(vect)
-    neighbors_clusters.add(G.neighbors(vect[0]))
-    neighbors_clusters.add(G.neighbors(vect[1]))
-    neighbors_clusters.add(G.neighbors(vect[2]))
-    neighbors_clusters.add(G.neighbors(vect[3]))
+    neighbors_clusters = neighbors_clusters | set(G.neighbors(vect[0]))
+    neighbors_clusters = neighbors_clusters | set(G.neighbors(vect[1]))
+    neighbors_clusters = neighbors_clusters | set(G.neighbors(vect[2]))
+    neighbors_clusters = neighbors_clusters | set(G.neighbors(vect[3]))
+
 
     while added < n:
-        if len(neighbors_clusters) < n:     # We can't use yet the optimized version
-            if len(hp_nodes) > 0:
-                # Choose a node with high priority that is not yet in a cluster
-                hp_nodes_can_cluster = [el for el in hp_nodes if len(set(G.neighbors(el)).intersection(cluster0) != 0
-                            or len(set(G.neighbors(el)).intersection(cluster1)) != 0
-                            or len(set(G.neighbors(el)).intersection(cluster2)) != 0
-                            or len(set(G.neighbors(el)).intersection(cluster3)) != 0)]
+        # Choose a  random node that is not yet in a cluster, using only one intersection operation
+        # instead of n intersection operation
+        items_to_be_clustered = list(samples.intersection(neighbors_clusters))
+        x = random.choice(items_to_be_clustered)
+        samples.remove(x)
 
-                if len(hp_nodes_can_cluster) > 0:
-                    x = random.choice(hp_nodes_can_cluster)
-                    hp_nodes.remove(x)
+        # Computation of the x's number of neighbors that are in each cluster
+        n_c0 = len(set(G.neighbors(x)).intersection(cluster0))
+        n_c1 = len(set(G.neighbors(x)).intersection(cluster1))
+        n_c2 = len(set(G.neighbors(x)).intersection(cluster2))
+        n_c3 = len(set(G.neighbors(x)).intersection(cluster3))
 
-            # If no hp_nodes can be clustered, we choose a random node from G
-            if len(hp_nodes) == 0 or len(hp_nodes_can_cluster) == 0:
-                items_to_be_clustered = [el for el in G.nodes() if el not in cluster0 | cluster1 | cluster2 | cluster3 and
-                                         (len(set(G.neighbors(el)).intersection(intersection_cluster0)) != 0 or
-                                          len(set(G.neighbors(el)).intersection(intersection_cluster1)) != 0 or
-                                          len(set(G.neighbors(el)).intersection(intersection_cluster2)) != 0 or
-                                          len(set(G.neighbors(el)).intersection(intersection_cluster3)) != 0)]
-                x = random.choice(items_to_be_clustered)
+        # we put x in the cluster that contain the highest number of neighbors of x
+        if n_c0 != 0 and n_c0 >= n_c1 and n_c0 >= n_c2 and n_c0 >= n_c3:
+            cluster0.add(x)
+            added += 1
 
-            # Computation of the x's number of neighbors that are in each cluster
-            n_c0 = len(set(G.neighbors(x)).intersection(intersection_cluster0))
-            n_c1 = len(set(G.neighbors(x)).intersection(intersection_cluster1))
-            n_c2 = len(set(G.neighbors(x)).intersection(intersection_cluster2))
-            n_c3 = len(set(G.neighbors(x)).intersection(intersection_cluster3))
+        elif n_c1 != 0 and n_c1 >= n_c2 and n_c1 >= n_c3:
+            cluster1.add(x)
+            added += 1
 
-            # we put x in the cluster that contain the highest number of neighbors of x
-            if n_c0 != 0 and n_c0 >= n_c1 and n_c0 >= n_c2 and n_c0 >= n_c3:
-                intersection_cluster0.add(x)
-                cluster0.add(x)
-                added += 1
-            elif n_c1 != 0 and n_c1 >= n_c2 and n_c1 >= n_c3:
-                intersection_cluster1.add(x)
-                cluster1.add(x)
-                added += 1
-            elif n_c2 != 0 and n_c2 >= n_c3:
-                intersection_cluster2.add(x)
-                cluster2.add(x)
-                added += 1
-            else:
-                intersection_cluster3.add(x)
-                cluster3.add(x)
-                added += 1
-
-            # We add in neighbors_clusters all the neighbors of x
-            neighbors_clusters = neighbors_clusters | G.neighbors(x)
-
-            if added % 250 == 0:
-                print(str(added) + " su " + str(n))
-                print(str(len(neighbors_clusters)) + " coperti su " + str(n))
-            if len(neighbors_clusters) == n:
-                print("Inizio ottimizzazione una volta aggiunti:", added)
-
-
+        elif n_c2 != 0 and n_c2 >= n_c3:
+            cluster2.add(x)
+            added += 1
         else:
-            # At this point we now for sure that each nodes have at least one intersection with at least one cluster
-            items_to_be_clustered = [el for el in G.nodes() if el not in cluster0 | cluster1 | cluster2 | cluster3]
-            x = random.choice(items_to_be_clustered)
+            cluster3.add(x)
+            added += 1
 
-            # Computation of the x's number of neighbors that are in each intersection_cluster
-            n_c0 = len(set(G.neighbors(x)).intersection(intersection_cluster0))
-            n_c1 = len(set(G.neighbors(x)).intersection(intersection_cluster1))
-            n_c2 = len(set(G.neighbors(x)).intersection(intersection_cluster2))
-            n_c3 = len(set(G.neighbors(x)).intersection(intersection_cluster3))
+        # We add in neighbors_clusters x and all its neighbors
+        neighbors_clusters.add(x)
+        neighbors_clusters = neighbors_clusters | set(G.neighbors(x))
 
-            # we put x in the cluster that contain the highest number of neighbors of x
-            if n_c0 != 0 and n_c0 >= n_c1 and n_c0 >= n_c2 and n_c0 >= n_c3:
-                cluster0.add(x)
-                added += 1
-            elif n_c1 != 0 and n_c1 >= n_c2 and n_c1 >= n_c3:
-                cluster1.add(x)
-                added += 1
-            elif n_c2 != 0 and n_c2 >= n_c3:
-                cluster2.add(x)
-                added += 1
-            elif n_c3 != 0:
-                cluster3.add(x)
-                added += 1
-
-            if added % 250 == 0:
-                print(str(added) + " su " + str(n))
+        if added % 250 == 0:
+            print(str(added) + " su " + str(n))
 
     # We save each cluster in a different file
-    with open("optimized_kmeans_result\\cluster0.txt", "w") as f:
+    with open("optimized_kmeans_result/cluster0.txt", "w") as f:
         for element in cluster0:
             f.write(element + "\n")
 
-    with open("optimized_kmeans_result\\cluster1.txt", "w") as f:
+    with open("optimized_kmeans_result/cluster1.txt", "w") as f:
         for element in cluster1:
             f.write(element + "\n")
 
-    with open("optimized_kmeans_result\\cluster2.txt", "w") as f:
+    with open("optimized_kmeans_result/cluster2.txt", "w") as f:
         for element in cluster2:
             f.write(element + "\n")
 
-    with open("optimized_kmeans_result\\cluster3.txt", "w") as f:
+    with open("optimized_kmeans_result/cluster3.txt", "w") as f:
         for element in cluster3:
             f.write(element + "\n")
