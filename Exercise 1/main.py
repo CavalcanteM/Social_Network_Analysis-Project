@@ -2,7 +2,8 @@ import os
 import csv
 import networkx as nx
 import time
-from kmeans import k_means, parallel_k_means, optimized_k_means
+from kmeans import k_means, parallel_k_means, optimized_k_means, parallel_opt_k_means
+from spectral import spectral_v1
 
 
 def load_graph():
@@ -24,6 +25,6 @@ def load_graph():
 G = load_graph()
 
 start = time.time()
-optimized_k_means(G)
+spectral_v1(G)
 
 print(time.time()-start)

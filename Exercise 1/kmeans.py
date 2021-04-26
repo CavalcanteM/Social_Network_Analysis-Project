@@ -223,7 +223,7 @@ def parallel_k_means(G, j):
                     done = True
                 else:
                     # We put the node without a cluster in 'node_to_cluster'
-                    node_to_cluster = G.subgraph(cluster4).nodes()     ### E' davvero l'unico modo per farlo?!?!
+                    node_to_cluster = G.subgraph(cluster4).nodes()
 
         else:
             cluster4 = set()
@@ -259,7 +259,7 @@ def parallel_k_means(G, j):
 
 
 
-# Optimized version of k-means. (ONLY FOR CONNECTED GRAPH)
+# Optimized version of k-means. (This function is also called by the parallel and optimized version)
 # The bottle neck of this problem is the intersection operation between set and the for cycle used to
 # build the list items_to_be_clustered. To remove this bottle neck, we use two new set:
 #
@@ -275,37 +275,28 @@ def parallel_k_means(G, j):
 # ----> O(min(len(cluster),len(samples))  = 0(n/2)
 # So we have, O(min(len(cluster),len(samples)) << O(n*min(degree(el),len(cluster))
 # N.B. These operations are repeated n times.
-def optimized_k_means(G):
-    # Declaration of initial clusters
-    vect = init_phase(G)
-    cluster0 = {vect[0]}
-    cluster1 = {vect[1]}
-    cluster2 = {vect[2]}
-    cluster3 = {vect[3]}
-
-    n = len(G.nodes())
-
-    # All the samples not added in the solution yet
-    samples = set(G.nodes())
-    for x in vect:
-        samples.remove(x)
-
-    added = 4
-
+def opt_cluster_k_means(G, cluster0, cluster1, cluster2, cluster3, elements, parallel = False):
+    if parallel:
+        elements = set(elements)
     # Set of clustered nodes and their neighbors
-    neighbors_clusters = set(vect)
-    neighbors_clusters = neighbors_clusters | set(G.neighbors(vect[0]))
-    neighbors_clusters = neighbors_clusters | set(G.neighbors(vect[1]))
-    neighbors_clusters = neighbors_clusters | set(G.neighbors(vect[2]))
-    neighbors_clusters = neighbors_clusters | set(G.neighbors(vect[3]))
+    neighbors_clusters = cluster0 | cluster1 | cluster2 | cluster3
+    for x in cluster0:
+        neighbors_clusters = neighbors_clusters | set(G.neighbors(x))
+    for x in cluster1:
+        neighbors_clusters = neighbors_clusters | set(G.neighbors(x))
+    for x in cluster2:
+        neighbors_clusters = neighbors_clusters | set(G.neighbors(x))
+    for x in cluster3:
+        neighbors_clusters = neighbors_clusters | set(G.neighbors(x))
 
-
-    while added < n:
+    while True:
         # Choose a  random node that is not yet in a cluster, using only one intersection operation
         # instead of n intersection operation
-        items_to_be_clustered = list(samples.intersection(neighbors_clusters))
+        items_to_be_clustered = list(elements.intersection(neighbors_clusters))
+        if len(items_to_be_clustered) == 0:
+            break
         x = random.choice(items_to_be_clustered)
-        samples.remove(x)
+        elements.remove(x)
 
         # Computation of the x's number of neighbors that are in each cluster
         n_c0 = len(set(G.neighbors(x)).intersection(cluster0))
@@ -316,25 +307,39 @@ def optimized_k_means(G):
         # we put x in the cluster that contain the highest number of neighbors of x
         if n_c0 != 0 and n_c0 >= n_c1 and n_c0 >= n_c2 and n_c0 >= n_c3:
             cluster0.add(x)
-            added += 1
 
         elif n_c1 != 0 and n_c1 >= n_c2 and n_c1 >= n_c3:
             cluster1.add(x)
-            added += 1
 
         elif n_c2 != 0 and n_c2 >= n_c3:
             cluster2.add(x)
-            added += 1
         else:
             cluster3.add(x)
-            added += 1
 
         # We add in neighbors_clusters x and all its neighbors
         neighbors_clusters.add(x)
         neighbors_clusters = neighbors_clusters | set(G.neighbors(x))
 
-        if added % 250 == 0:
-            print(str(added) + " su " + str(n))
+    return cluster0, cluster1, cluster2, cluster3, elements
+
+
+
+# Optimized version of k-means
+def optimized_k_means(G):
+    # Declaration of initial clusters
+    vect = init_phase(G)
+    cluster0 = {vect[0]}
+    cluster1 = {vect[1]}
+    cluster2 = {vect[2]}
+    cluster3 = {vect[3]}
+    cluster4 = set()
+
+    # All the samples not added in the solution yet
+    samples = set(G.nodes())
+    for x in vect:
+        samples.remove(x)
+
+    (cluster0, cluster1, cluster2, cluster3, cluster4) = opt_cluster_k_means(G, cluster0, cluster1, cluster2, cluster3, samples)
 
     # We save each cluster in a different file
     with open("optimized_kmeans_result/cluster0.txt", "w") as f:
@@ -352,3 +357,72 @@ def optimized_k_means(G):
     with open("optimized_kmeans_result/cluster3.txt", "w") as f:
         for element in cluster3:
             f.write(element + "\n")
+
+    # cluster4 contains only the element that we can't add in cluster (not connected graph)
+    if len(cluster4) > 0:
+        with open("optimized_kmeans_result/cluster4.txt", "w") as f:
+            for element in cluster4:
+                f.write(element + "\n")
+
+
+
+# The optimized version implemented in a parallel way
+def parallel_opt_k_means(G,j):
+    # Declaration of initial clusters
+    vect = init_phase(G)
+    cluster0 = {vect[0]}
+    cluster1 = {vect[1]}
+    cluster2 = {vect[2]}
+    cluster3 = {vect[3]}
+
+    # All the samples not added in the solution yet
+    samples = set(G.nodes())
+    for x in vect:
+        samples.remove(x)
+    i = 1
+
+    # We repeat the operation until all the nodes or almost all the node are added in a cluster.
+    while len(samples) > 40*j:
+        with Parallel(n_jobs=j) as parallel:
+            samples_to_cluster = G.subgraph(samples).nodes()
+            samples = set()
+
+            result = parallel(delayed(opt_cluster_k_means)(G, cluster0, cluster1, cluster2, cluster3, X, True)
+                              for X in chunks(samples_to_cluster, math.ceil(len(samples_to_cluster) / j)))
+
+            for res in result:
+                cluster0 = cluster0 | res[0]
+                cluster1 = cluster1 | res[1]
+                cluster2 = cluster2 | res[2]
+                cluster3 = cluster3 | res[3]
+                samples = samples | res[4]
+                for r in res:
+                    print(len(r))
+                print("\n")
+
+    if len(samples) > 0:
+        (cluster0, cluster1, cluster2, cluster3, samples) = opt_cluster_k_means(G, cluster0, cluster1, cluster2, cluster3, samples)
+
+
+    # We save each cluster in a different file
+    with open("parallel_optimized_k_means_result/cluster0.txt", "w") as f:
+        for element in cluster0:
+            f.write(element + "\n")
+
+    with open("parallel_optimized_k_means_result/cluster1.txt", "w") as f:
+        for element in cluster1:
+            f.write(element + "\n")
+
+    with open("parallel_optimized_k_means_result/cluster2.txt", "w") as f:
+        for element in cluster2:
+            f.write(element + "\n")
+
+    with open("parallel_optimized_k_means_result/cluster3.txt", "w") as f:
+        for element in cluster3:
+            f.write(element + "\n")
+
+    # cluster4 contains only the element that we can't add in cluster (not connected graph)
+    if len(samples) > 0:
+        with open("parallel_optimized_k_means_result/cluster4.txt", "w") as f:
+            for element in samples:
+                f.write(element + "\n")
