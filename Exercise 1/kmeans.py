@@ -4,6 +4,7 @@ import time
 from joblib import Parallel, delayed
 import itertools as it
 import math
+from priorityq import PriorityQueue
 
 
 # Initial phase in which we add one vertex to each cluster (we assume the presence of only 4 clusters).
@@ -275,9 +276,9 @@ def parallel_k_means(G, j):
 # ----> O(min(len(cluster),len(samples))  = 0(n/2)
 # So we have, O(min(len(cluster),len(samples)) << O(n*min(degree(el),len(cluster))
 # N.B. These operations are repeated n times.
-def opt_cluster_k_means(G, cluster0, cluster1, cluster2, cluster3, elements, parallel = False):
+def opt_cluster_k_means(G, cluster0, cluster1, cluster2, cluster3, samples, parallel = False):
     if parallel:
-        elements = set(elements)
+        samples = set(samples)
     # Set of clustered nodes and their neighbors
     neighbors_clusters = cluster0 | cluster1 | cluster2 | cluster3
     for x in cluster0:
@@ -292,11 +293,11 @@ def opt_cluster_k_means(G, cluster0, cluster1, cluster2, cluster3, elements, par
     while True:
         # Choose a  random node that is not yet in a cluster, using only one intersection operation
         # instead of n intersection operation
-        items_to_be_clustered = list(elements.intersection(neighbors_clusters))
+        items_to_be_clustered = list(samples.intersection(neighbors_clusters))
         if len(items_to_be_clustered) == 0:
             break
         x = random.choice(items_to_be_clustered)
-        elements.remove(x)
+        samples.remove(x)
 
         # Computation of the x's number of neighbors that are in each cluster
         n_c0 = len(set(G.neighbors(x)).intersection(cluster0))
@@ -320,7 +321,7 @@ def opt_cluster_k_means(G, cluster0, cluster1, cluster2, cluster3, elements, par
         neighbors_clusters.add(x)
         neighbors_clusters = neighbors_clusters | set(G.neighbors(x))
 
-    return cluster0, cluster1, cluster2, cluster3, elements
+    return cluster0, cluster1, cluster2, cluster3, samples
 
 
 
@@ -426,3 +427,228 @@ def parallel_opt_k_means(G,j):
         with open("parallel_optimized_k_means_result/cluster4.txt", "w") as f:
             for element in samples:
                 f.write(element + "\n")
+
+
+
+# From this point to the end, we propose a version in which the chosen centroids are the node with
+# maximum degree such that there is no edge between them and the elements to be clustered are stored in
+# a priority queue, giving high priority to the node with minimum degree. The reason are explained in
+# the documentation.
+def init_phase_2(G):
+    start_init_phase = time.time()
+
+    max_degree = 0
+    for node in G.nodes():
+        if G.degree(node) > max_degree:
+            max_degree = G.degree(node)
+            u = node
+    print(G.degree(u))
+    nn_u = list(nx.non_neighbors(G, u))  # List of non neighbors of u
+
+    if len(nn_u) == 0:
+        # if the list is empty, we choose a random node, even if it is neighbor with some node
+        # already selected
+        print("Impossibile trovare altri nodi non vicini con nessuno")
+        G1 = G.deepcopy()
+        G1.remove_node(u)  # We can't select u
+    else:
+        # if the list is not empty we create a subgraph containing only the non-neighbors of u and we make
+        # a random choice
+        G1 = nx.subgraph(G, nn_u)
+
+    max_degree = 0
+    for node in G1.nodes():
+        if G1.degree(node) > max_degree:
+            max_degree = G1.degree(node)
+            v = node
+    print(G.degree(v))
+    nn_uv = list(nx.non_neighbors(G1, v))  # List of non neighbors of u and v (if previous list is not empty)
+
+    if len(nn_uv) == 0:
+        # if the list is empty, we choose a random node, even if it is neighbor with some node
+        # already selected
+        print("Impossibile trovare altri nodi non vicini con nessuno")
+        G1 = G.deepcopy()
+        G1.remove_node(u)
+        G1.remove_node(v)
+    else:
+        G1 = nx.subgraph(G1, nn_uv)
+
+    max_degree = 0
+    for node in G1.nodes():
+        if G1.degree(node) > max_degree:
+            max_degree = G1.degree(node)
+            w = node
+
+    print(G.degree(w))
+    nn_uvw = list(nx.non_neighbors(G1, w))  # List of non neighbors of u, v and w (if previous list is not empty)
+
+    if len(nn_uvw) == 0:
+        # if the list is empty, we choose a random node, even if it is neighbor with some node
+        # already selectioned
+        print("Impossibile trovare altri nodi non vicini con nessuno")
+        G1 = G.deepcopy()
+        G1.remove_node(u)
+        G1.remove_node(v)
+        G1.remove_node(w)
+    else:
+        G1 = nx.subgraph(G1, nn_uvw)
+
+    max_degree = 0
+    for node in G1.nodes():
+        if G1.degree(node) > max_degree:
+            max_degree = G1.degree(node)
+            z = node
+    print(G.degree(z))
+    print("Initialization phase ended: ", time.time() - start_init_phase)
+    return [u, v, w, z]
+
+
+def opt_cluster_k_means_v2(G, cluster0, cluster1, cluster2, cluster3, samples, parallel = False):
+    if parallel:
+        samples = set(samples)
+    # Set of clustered nodes and their neighbors
+    neighbors_clusters = cluster0 | cluster1 | cluster2 | cluster3
+    for x in cluster0:
+        neighbors_clusters = neighbors_clusters | set(G.neighbors(x))
+    for x in cluster1:
+        neighbors_clusters = neighbors_clusters | set(G.neighbors(x))
+    for x in cluster2:
+        neighbors_clusters = neighbors_clusters | set(G.neighbors(x))
+    for x in cluster3:
+        neighbors_clusters = neighbors_clusters | set(G.neighbors(x))
+
+    pq = PriorityQueue()
+    previous_items = set()
+    while True:
+        # Choose a  random node that is not yet in a cluster, using only one intersection operation
+        # instead of n intersection operation
+        items_to_be_clustered = samples.intersection(neighbors_clusters)
+        if len(items_to_be_clustered) == 0:
+            break
+
+        for item in items_to_be_clustered:
+            if item not in previous_items:
+                pq.add(item, G.degree(item))
+    
+        x = pq.pop()
+        samples.remove(x)
+
+        # Computation of the x's number of neighbors that are in each cluster
+        n_c0 = len(set(G.neighbors(x)).intersection(cluster0))
+        n_c1 = len(set(G.neighbors(x)).intersection(cluster1))
+        n_c2 = len(set(G.neighbors(x)).intersection(cluster2))
+        n_c3 = len(set(G.neighbors(x)).intersection(cluster3))
+
+        # we put x in the cluster that contain the highest number of neighbors of x
+        if n_c0 != 0 and n_c0 >= n_c1 and n_c0 >= n_c2 and n_c0 >= n_c3:
+            cluster0.add(x)
+
+        elif n_c1 != 0 and n_c1 >= n_c2 and n_c1 >= n_c3:
+            cluster1.add(x)
+
+        elif n_c2 != 0 and n_c2 >= n_c3:
+            cluster2.add(x)
+        else:
+            cluster3.add(x)
+
+        # We add in neighbors_clusters x and all its neighbors
+        neighbors_clusters.add(x)
+        neighbors_clusters = neighbors_clusters | set(G.neighbors(x))
+
+        previous_items = items_to_be_clustered.copy()
+
+    return cluster0, cluster1, cluster2, cluster3, samples
+
+
+# Optimized version of k-means
+def optimized_k_means_v2(G):
+    # Declaration of initial clusters
+    vect = init_phase_2(G)
+    cluster0 = {vect[0]}
+    cluster1 = {vect[1]}
+    cluster2 = {vect[2]}
+    cluster3 = {vect[3]}
+    cluster4 = set()
+
+    # All the samples not added in the solution yet
+    samples = set(G.nodes())
+    for x in vect:
+        samples.remove(x)
+
+    (cluster0, cluster1, cluster2, cluster3, cluster4) = opt_cluster_k_means_v2(G, cluster0, cluster1, cluster2, cluster3, samples)
+
+
+    # We save each cluster in a different file
+    with open("K_MEANS/optimized_kmeans_v2_result/cluster0.txt", "w") as f:
+        for element in cluster0:
+            f.write(element + "\n")
+
+    with open("K_MEANS/optimized_kmeans_v2_result/cluster1.txt", "w") as f:
+        for element in cluster1:
+            f.write(element + "\n")
+
+    with open("K_MEANS/optimized_kmeans_v2_result/cluster2.txt", "w") as f:
+        for element in cluster2:
+            f.write(element + "\n")
+
+    with open("K_MEANS/optimized_kmeans_v2_result/cluster3.txt", "w") as f:
+        for element in cluster3:
+            f.write(element + "\n")
+
+    # cluster4 contains only the element that we can't add in cluster (not connected graph)
+    if len(cluster4) > 0:
+        with open("K_MEANS/optimized_kmeans_v2_result/cluster4.txt", "w") as f:
+            for element in cluster4:
+                f.write(element + "\n")
+
+
+def parallel_opt_k_means_v2(G,j):
+    # Declaration of initial clusters
+    vect = init_phase_2(G)
+    cluster0 = {vect[0]}
+    cluster1 = {vect[1]}
+    cluster2 = {vect[2]}
+    cluster3 = {vect[3]}
+
+    # All the samples not added in the solution yet
+    samples = set(G.nodes())
+    for x in vect:
+        samples.remove(x)
+
+    # We repeat the operation until all the nodes or almost all the node are added in a cluster.
+    while len(samples) > 40*j:
+        with Parallel(n_jobs=j) as parallel:
+            samples_to_cluster = G.subgraph(samples).nodes()
+            samples = set()
+
+            result = parallel(delayed(opt_cluster_k_means_v2)(G, cluster0, cluster1, cluster2, cluster3, X, True)
+                              for X in chunks(samples_to_cluster, math.ceil(len(samples_to_cluster) / j)))
+
+            for res in result:
+                cluster0 = cluster0 | res[0]
+                cluster1 = cluster1 | res[1]
+                cluster2 = cluster2 | res[2]
+                cluster3 = cluster3 | res[3]
+                samples = samples | res[4]
+
+
+    if len(samples) > 0:
+        (cluster0, cluster1, cluster2, cluster3, samples) = opt_cluster_k_means_v2(G, cluster0, cluster1, cluster2, cluster3, samples)
+
+    # We save each cluster in a different file
+    with open("K_MEANS/parallel_opt_k_means_v2_result/cluster0.txt", "w") as f:
+        for element in cluster0:
+            f.write(element + "\n")
+
+    with open("K_MEANS/parallel_opt_k_means_v2_result/cluster1.txt", "w") as f:
+        for element in cluster1:
+            f.write(element + "\n")
+
+    with open("K_MEANS/parallel_opt_k_means_v2_result/cluster2.txt", "w") as f:
+        for element in cluster2:
+            f.write(element + "\n")
+
+    with open("K_MEANS/parallel_opt_k_means_v2_result/cluster3.txt", "w") as f:
+        for element in cluster3:
+            f.write(element + "\n")
