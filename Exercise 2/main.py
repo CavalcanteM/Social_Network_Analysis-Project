@@ -1,9 +1,8 @@
 import csv
 import networkx as nx
 import time
-from kmeans import k_means, parallel_k_means, optimized_k_means_v2, parallel_opt_k_means_v2
-from spectral import spectral_invpm, spectral_2_eig, sampled_spectral, spectral, sampled_spectral_invpm
-
+from hits import dict_hits, matrix_hits, parallel_matrix_hits, parallel_dict_hits
+import math
 
 def load_graph():
 
@@ -22,6 +21,6 @@ def load_graph():
 G = load_graph()
 
 start = time.time()
-spectral_invpm(G)
+matrix_hits(G, 200)
 
 print(time.time()-start)
