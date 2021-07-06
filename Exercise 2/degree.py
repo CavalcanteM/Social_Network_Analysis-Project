@@ -19,7 +19,6 @@ def degree_centrality(G):
 
     # Add all the node in a PQ and save the top 500
     pq = PriorityQueue()
-    print(len(cen.keys()))
     for node in cen.keys():
         pq.add(node, -cen[node])
 
@@ -49,7 +48,6 @@ def parallel_degree_centrality(G, j):
     # Add all the node in a PQ and save the top 500
     pq = PriorityQueue()
     for cen in result:
-        print(len(cen.keys()))
         for node in cen.keys():
             pq.add(node, -cen[node])
 
