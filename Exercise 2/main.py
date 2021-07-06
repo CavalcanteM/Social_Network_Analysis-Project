@@ -2,7 +2,9 @@ import csv
 import networkx as nx
 import time
 from hits import dict_hits, matrix_hits, parallel_matrix_hits, parallel_dict_hits
-import math
+from pagerank import dict_pagerank, matrix_pagerank, parallel_dict_pagerank, parallel_matrix_pagerank
+from degree import degree_centrality, parallel_degree_centrality
+
 
 def load_graph():
 
@@ -20,7 +22,7 @@ def load_graph():
 
 G = load_graph()
 
+print("NAIVE VERSION")
 start = time.time()
-matrix_hits(G, 200)
-
+degree_centrality(G)
 print(time.time()-start)
