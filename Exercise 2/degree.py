@@ -18,15 +18,15 @@ def degree_centrality(G):
     cen = degree(G, G.nodes())
 
     # Add all the node in a PQ and save the top 500
-    pq_rank = PriorityQueue()
+    pq = PriorityQueue()
     print(len(cen.keys()))
     for node in cen.keys():
-        pq_rank.add(node, -cen[node])
+        pq.add(node, -cen[node])
 
     i = 0
     with open("DEGREE/degree.txt", "w") as f:
         while i < 500:
-            node = pq_rank.pop()
+            node = pq.pop()
             f.write(node + '\n')
             i += 1
 
@@ -47,15 +47,15 @@ def parallel_degree_centrality(G, j):
 
 
     # Add all the node in a PQ and save the top 500
-    pq_rank = PriorityQueue()
+    pq = PriorityQueue()
     for cen in result:
         print(len(cen.keys()))
         for node in cen.keys():
-            pq_rank.add(node, -cen[node])
+            pq.add(node, -cen[node])
 
     i = 0
     with open("DEGREE/parallel_degree" + str(j) + ".txt", "w") as f:
         while i < 500:
-            node = pq_rank.pop()
+            node = pq.pop()
             f.write(node + '\n')
             i += 1
