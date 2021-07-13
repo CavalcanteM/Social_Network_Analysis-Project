@@ -40,8 +40,6 @@ def FriedkinJohnsen(G, stubborness, belief):
         else:
             for i in range(len(belief)):
                 sum = 0
-                if stubborness[i] == 1:
-                    print(opinions[i])
                 for v in G.neighbors(str(i)):
                     sum += prev_opinions[int(v)] / G.degree(str(i))
                 opinions[i] = stubborness[i] * belief[i] + (1 - stubborness[i]) * sum
@@ -99,7 +97,7 @@ def manipulation(G, p, c, B, b):
     # Definizione della stubborness
     stubborness = np.ones(G.number_of_nodes()) / 2
 
-    for x in seeds[3]:
+    for x in seeds[2]:
         stubborness[x] = 1
         b[x] = p[c]
 

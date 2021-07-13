@@ -192,9 +192,14 @@ def selector(G, B):
         print(graph.number_of_nodes())
         # Salvataggio dei seed da selezionare per ogni cluster
         el.append(int(B*graph.number_of_nodes()/G.number_of_nodes()))
-        pqs1.append(matrix_hits(graph))
-        pqs2.append(matrix_pagerank(graph, 0.85))
-        pqs3.append(degree_centrality(graph))
+        if el[-1] > 0:
+            pqs1.append(matrix_hits(graph))
+            pqs2.append(matrix_pagerank(graph, 0.85))
+            pqs3.append(degree_centrality(graph))
+        else:
+            pqs1.append(PriorityQueue())
+            pqs2.append(PriorityQueue())
+            pqs3.append(PriorityQueue())
         i = i + 1
 
     # aggiungiamo i restantanti elementi (rimasti a causa del troncamento) al cluster più numeroso
