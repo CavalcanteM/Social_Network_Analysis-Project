@@ -4,6 +4,8 @@ import time
 from hits import dict_hits, matrix_hits, parallel_matrix_hits, parallel_dict_hits
 from pagerank import dict_pagerank, matrix_pagerank, parallel_dict_pagerank, parallel_matrix_pagerank
 from degree import degree_centrality, parallel_degree_centrality
+from closeness import closeness_centrality, parallel_closeness_centrality, sampled_closeness_centrality
+from betweenness import betweenness_centrality, parallel_betweenness_centrality, sampled_betweenness_centrality
 
 
 def load_graph():
@@ -22,7 +24,7 @@ def load_graph():
 
 G = load_graph()
 
-print("NAIVE VERSION")
+print("SAMPLED VERSION")
 start = time.time()
-degree_centrality(G)
+sampled_betweenness_centrality(G, 4)
 print(time.time()-start)

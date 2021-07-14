@@ -102,9 +102,3 @@ def shapley_closeness(G):
         shapley_values[list_nodes[v]] += 1 - sum
 
     return shapley_values
-            
-
-
-
-
-

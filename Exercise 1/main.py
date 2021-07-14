@@ -1,8 +1,7 @@
 import csv
 import networkx as nx
 import time
-from kmeans import k_means, parallel_k_means, optimized_k_means_v2, parallel_opt_k_means_v2
-from spectral import spectral_invpm, spectral_2_eig, sampled_spectral, spectral, sampled_spectral_invpm
+from girman_newmann import bwt_cluster_naive, bwt_cluster_parallel, bwt_cluster_sampled, bwt_cluster_performance_based
 
 
 def load_graph():
@@ -22,6 +21,9 @@ def load_graph():
 G = load_graph()
 
 start = time.time()
-spectral_invpm(G)
+bwt_cluster_naive(G)
+#bwt_cluster_parallel(G, 4)
+#bwt_cluster_sampled(G, 0.05, 4)
+#bwt_cluster_performance_based(G, 0.05, 4)
 
 print(time.time()-start)
