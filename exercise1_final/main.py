@@ -2,7 +2,7 @@ import csv
 import networkx as nx
 import time
 from shapley import shapley_degree, shapley_threshold, shapley_closeness
-
+from friedkin import FriedkinJohnsen
 
 def load_graph():
 
@@ -40,4 +40,11 @@ print("---------- Shapley Closeness ----------")
 sc = shapley_closeness(G)
 print("Calcolo Shapley Closeness terminato.")
 print("Tempo impiegato: ", time.time()-start)
+print()
 
+start = time.time()
+print("---------- Friedkin-Johnsen dynamics ----------")
+print("Esecuzione Friedkin-Johnsen in corso...")
+opinions = FriedkinJohnsen(G)
+print("Esecuzione Friedkin-Johnsen terminata.")
+print("Tempo impiegato: ", time.time()-start)
