@@ -8,8 +8,8 @@ def load_graph():
 
     G = nx.Graph()
 
-    with open('../facebook_large/musae_facebook_edges.csv', newline='') as csvfile:
-        rows = csv.reader(csvfile, delimiter=',')
+    with open('exercise1_final/net_13', newline='') as csvfile:
+        rows = csv.reader(csvfile, delimiter=' ')
         next(rows)
 
         for row in rows:
@@ -21,11 +21,23 @@ def load_graph():
 G = load_graph()
 
 start = time.time()
-
+print("---------- Shapley Degree ----------")
 sp = shapley_degree(G)
+print("Calcolo Shapley Degree terminato.")
+print("Tempo impiegato: ", time.time()-start)
+print()
+
+start = time.time()
+print("---------- Shapley Threshold ----------")
 k = 1 # parameter for shapley threshold
 st = shapley_threshold(G, k)
-u = 1 # minimum distance used in shapley closeness
-sc = shapley_closeness(G, u)
+print("Calcolo Shapley Threshold terminato.")
+print("Tempo impiegato: ", time.time()-start)
+print()
 
-print(time.time()-start)
+start = time.time()
+print("---------- Shapley Closeness ----------")
+sc = shapley_closeness(G)
+print("Calcolo Shapley Closeness terminato.")
+print("Tempo impiegato: ", time.time()-start)
+

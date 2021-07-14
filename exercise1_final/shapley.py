@@ -1,5 +1,5 @@
 import networkx as nx
-
+from tqdm import tqdm
 
 # Polynomial-time algorithm to compute the Shapley value based on the characteristic function 'shapley degree'
 # value(C) = |C| + |N(C)| where N(C) is the set of nodes outside C with at least one neighbor in C.
@@ -14,10 +14,12 @@ import networkx as nx
 # Complexity O(n+m)
 def shapley_degree(G):
     shapley_values = dict()
-    for v in G.nodes():
-        shapley_values[v] = 1/(1+G.degree(v))
-        for u in G.neighbors(v):
-            shapley_values[v] += 1/(1+G.degree(u))
+    list_nodes = list(G.nodes())
+
+    for v in tqdm(range(len(list_nodes)), desc="Calcolo Shapley Degree in corso..."):
+        shapley_values[list_nodes[v]] = 1/(1+G.degree(list_nodes[v]))
+        for u in G.neighbors(list_nodes[v]):
+            shapley_values[list_nodes[v]] += 1/(1+G.degree(u))
 
     return shapley_values
 
@@ -36,18 +38,73 @@ def shapley_degree(G):
 # Complexity O(n+m)
 def shapley_threshold(G, k):
     shapley_values = dict()
-    for v in G.nodes():
-        shapley_values[v] = min(1, k/(1+G.degree(v)))
-        for u in G.neighbors(v):
-            shapley_values[v] += max(0, (G.degree(u)-k+1)/(G.degree(u)(1+G.degree(u))))
+    list_nodes = list(G.nodes())
+    
+    for v in tqdm(range(len(list_nodes)), desc="Calcolo Shapley Threshold in corso..."):
+        shapley_values[list_nodes[v]] = min(1, k/(1+G.degree(list_nodes[v])))
+        for u in G.neighbors(list_nodes[v]):
+            shapley_values[list_nodes[v]] += max(0, (G.degree(u)-k+1)/((G.degree(u)*(1+G.degree(u)))))
 
     return shapley_values
 
+def bfs(G, u):
+    visited = set() # nodi visitati
+    visited.add(u)
+    queue = [u]
+    dist = dict()   # dizionario nodo:distanza
+    dist[u] = 0
+
+    while len(queue) > 0:
+        v = queue.pop(0)
+        for w in G[v]:
+            if w not in visited:
+                visited.add(w)
+                queue.append(w)
+                dist[w] = dist[v]+1
+
+    sort_dist = sorted(dist.items(), key=lambda x: x[1])
+    
+    nodes = []
+    distances = []
+    for i in sort_dist:
+        nodes.append(i[0])
+        distances.append(i[1])
+    return nodes, distances
 
 # Polynomial-time algorithm to compute the Shapley value based on the characteristic function 'shapley closeness'
 # value(C) = Sum(1/dist(u,C)) where dist(u,C) is the minimum distance between u and a node of C.
 # Instead of compute all possible permutations, is proved that the probability that in a random permutation none of the
 # nodes from {vj , w1, . . . , wk} occur before vi and the node wk+1 occurs before vi is 1/(k+1)(k+2).
 # Complexity O(n*m + (n^2)*log(n))
-def shapley_closeness(G, u):
-    pass
+def shapley_closeness(G):
+    shapley_values = {v:0 for v in G.nodes()}
+    list_nodes = list(G.nodes())
+    
+    for v in tqdm(range(len(list_nodes)), desc="Calcolo Shapley Closeness in corso..."):
+        nodes, distances = bfs(G, list_nodes[v])
+        sum = 0
+        index = G.number_of_nodes() - 1
+        prevDistance = -1
+        prevSV = -1
+
+        while index > 0:
+            if distances[index] == prevDistance:
+                currSV = prevSV
+            else:
+                currSV = 1 / (distances[index] * (1 + index)) - sum
+
+            shapley_values[nodes[index]] += currSV
+            sum += 1 / (distances[index] * (index * (1 + index)))
+            prevDistance = distances[index]
+            prevSV = currSV
+            index -= 1
+
+        shapley_values[list_nodes[v]] += 1 - sum
+
+    return shapley_values
+            
+
+
+
+
+
