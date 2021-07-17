@@ -5,45 +5,9 @@ import networkx as nx
 from priorityq import PriorityQueue
 from joblib import Parallel, delayed
 import itertools as it
+from tqdm import tqdm
 import numpy as np
-
-
-# Computes edge and vertex betweenness of the graph in input
-def betweenness(G, X):
-    edge_btw = {frozenset(e): 0 for e in G.edges()}
-    for s in X:
-        # Compute the number of shortest paths from s to every other node
-        tree = []  # it lists the nodes in the order in which they are visited
-        spnum = {i: 0 for i in G.nodes()}  # it saves the number of shortest paths from s to i
-        parents = {i: [] for i in G.nodes()}  # it saves the parents of i in each of the shortest paths from s to i
-        distance = {i: -1 for i in G.nodes()}  # the number of shortest paths starting from s that use the edge e
-        eflow = {frozenset(e): 0 for e in G.edges()}  # the number of shortest paths starting from s that use the edge e
-        vflow = {i: 1 for i in G.nodes()}  # the number of shortest paths starting from s that use the vertex i. It is initialized to 1 because the shortest path from s to i is assumed to uses that vertex once.
-
-        # BFS
-        queue = [s]
-        spnum[s] = 1
-        distance[s] = 0
-        while len(queue) > 0:
-            c = queue.pop(0)
-            tree.append(c)
-            for i in G[c]:
-                if distance[i] == -1:  # if vertex i has not been visited
-                    queue.append(i)
-                    distance[i] = distance[c] + 1
-                if distance[i] == distance[c] + 1:  # if we have just found another shortest path from s to i
-                    spnum[i] += spnum[c]
-                    parents[i].append(c)
-
-        # BOTTOM-UP PHASE
-        while len(tree) > 0:
-            c = tree.pop()
-            for i in parents[c]:
-                eflow[frozenset({c, i})] += vflow[c] * (spnum[i] / spnum[c])  # the number of shortest paths using vertex c is split among the edges towards its parents proportionally to the number of shortest paths that the parents contributes
-                vflow[i] += eflow[frozenset({c, i})]  # each shortest path that use an edge (i,c) where i is closest to s than c must use also vertex i
-                edge_btw[frozenset({c, i})] += eflow[frozenset({c, i})]  # betweenness of an edge is the sum over all s of the number of shortest paths from s to other nodes using that edge
-
-    return edge_btw
+import time
 
 
 # Utility used for split a vector data in chunks of the given size.
@@ -51,169 +15,240 @@ def betweenness(G, X):
 def chunks(data, size):
     idata = iter(data)
     for i in range(0, len(data), size):
-        yield {k for k in it.islice(idata, size)}
+        yield {k: data[k] for k in it.islice(idata, size)}
 
 
-# Clusters are computed by iteratively removing edges of largest betweenness
-def bwt_cluster(G, j):
-    sampled = random.sample(G.nodes(), int(len(G.nodes()) * 0.05))
+def shapley_degree(G):
+    shapley_values = dict()
+    list_nodes = list(G.nodes())
 
-    with Parallel(n_jobs=j) as parallel:
-        results = parallel(delayed(betweenness)(G, X) for X in chunks(sampled, math.ceil(len(sampled) / j)))
-
-    edge_btw = {frozenset(e): 0 for e in G.edges()}
-    for res in results:
-        for edge in res.keys():
-            edge_btw[edge] += res[edge]
+    for v in tqdm(range(len(list_nodes)), desc="Calcolo Shapley Degree in corso..."):
+        shapley_values[list_nodes[v]] = 1/(1+G.degree(list_nodes[v]))
+        for u in G.neighbors(list_nodes[v]):
+            shapley_values[list_nodes[v]] += 1/(1+G.degree(u))
 
     pq = PriorityQueue()
-    for edge in edge_btw:
-        pq.add(edge, -edge_btw[edge])
+    for node in shapley_values.keys():
+        pq.add(node, -shapley_values[node])
 
-    done = False
-    while not done:
-        edge = tuple(sorted(pq.pop()))
-        G.remove_edges_from([edge])
-        clusters = list(nx.connected_components(G))
-
-        if len(clusters) >= 4:
-            done = True
-
-    graphs = []
-    for cluster in clusters:
-        graphs.append(nx.subgraph(G, cluster))
-
-    return graphs
+    return shapley_values, pq
 
 
+def shapley_threshold(G, k):
+    shapley_values = dict()
+    list_nodes = list(G.nodes())
+
+    for v in tqdm(range(len(list_nodes)), desc="Calcolo Shapley Threshold in corso..."):
+        shapley_values[list_nodes[v]] = min(1, k / (1 + G.degree(list_nodes[v])))
+        for u in G.neighbors(list_nodes[v]):
+            shapley_values[list_nodes[v]] += max(0, (G.degree(u) - k + 1) / ((G.degree(u) * (1 + G.degree(u)))))
+
+    pq = PriorityQueue()
+    for node in shapley_values.keys():
+        pq.add(node, -shapley_values[node])
+
+    return shapley_values, pq
+
+
+def bfs(G, u):
+    visited = set()  # nodi visitati
+    visited.add(u)
+    queue = [u]
+    dist = dict()  # dizionario nodo:distanza
+    dist[u] = 0
+
+    while len(queue) > 0:
+        v = queue.pop(0)
+        for w in G[v]:
+            if w not in visited:
+                visited.add(w)
+                queue.append(w)
+                dist[w] = dist[v] + 1
+
+    sort_dist = sorted(dist.items(), key=lambda x: x[1])
+
+    nodes = []
+    distances = []
+    for i in sort_dist:
+        nodes.append(i[0])
+        distances.append(i[1])
+    return nodes, distances
+
+
+def shapley_closeness(G, nodes):
+    shapley_values = {v: 0 for v in G.nodes()}
+    list_nodes = list(nodes)
+
+    for v in tqdm(range(len(list_nodes)), desc="Calcolo Shapley Closeness in corso..."):
+        nodes, distances = bfs(G, list_nodes[v])
+        sum = 0
+        index = G.number_of_nodes() - 1
+        prevDistance = -1
+        prevSV = -1
+
+        while index > 0:
+            if distances[index] == prevDistance:
+                currSV = prevSV
+            else:
+                currSV = 1 / (distances[index] * (1 + index)) - sum
+
+            shapley_values[nodes[index]] += currSV
+            sum += 1 / (distances[index] * (index * (1 + index)))
+            prevDistance = distances[index]
+            prevSV = currSV
+            index -= 1
+
+        shapley_values[list_nodes[v]] += 1 - sum
+
+    return shapley_values
+
+
+def shapley_closeness_parallel(G, j):
+    with Parallel(n_jobs=j) as parallel:
+        result = parallel(delayed(shapley_closeness)(G, X)
+                          for X in chunks(G.nodes(), math.ceil(len(G.nodes()) / j)))
+
+    shapley_values = {v: 0 for v in G.nodes()}
+    for res in result:
+        for node in res:
+            shapley_values[node] += res[node]
+
+    pq = PriorityQueue()
+    for node in shapley_values.keys():
+        pq.add(node, -shapley_values[node])
+
+    return shapley_values, pq
 
 
 # The measure associated to each node is exactly its degree divided by number of nodes - 1
-def degree(G, nodes):
+def degree(G):
     cen = dict()
-    for u in nodes:
+    for u in G.nodes():
         cen[u] = G.degree(u) / (G.number_of_nodes() - 1)
     return cen
 
 
-# Naive implementation of degree centrality
-def degree_centrality(G):
-    cen = degree(G, G.nodes())
+def sum_bfs(G, u):
+    visited = set()
+    visited.add(u)
+    queue = [u]
+    dist = dict()
+    dist[u] = 0
+    sum = 0
 
-    # Add all the node in a PQ and save the top 500
+    while len(queue) > 0:
+        v = queue.pop(0)
+        for w in G[v]:
+            if w not in visited:
+                visited.add(w)
+                queue.append(w)
+                dist[w] = dist[v]+1
+                sum += dist[w]
+
+    return sum
+
+
+# It computes the closeness on the subset nodes.
+def parallel_closeness(G, nodes):
+    closeness = dict()
+    for node in nodes:
+        closeness[node] = (G.number_of_nodes()-1)/sum_bfs(G, node)
+    return closeness
+
+
+# Parallel implementation of closeness centrality
+def parallel_closeness_centrality(G, j):
+    with Parallel(n_jobs=j) as parallel:
+        result = parallel(delayed(parallel_closeness)(G, X)
+                          for X in chunks(G.nodes(), math.ceil(G.number_of_nodes() / j)))
+
+    cl_value = dict()
     pq = PriorityQueue()
-    for node in cen.keys():
-        pq.add(node, -cen[node])
+    for res in result:
+        for x in res.keys():
+            cl_value[x] = res[x]
+            pq.add(x, -res[x])
 
-    return pq
+    return cl_value, pq
 
-
-# HITS algorithm implemented in his matrix version
-def matrix_hits(G):
-    auth_hub = np.ones(G.number_of_nodes())
-    nodes = sorted(G.nodes())
-    M = nx.adjacency_matrix(G, nodes)
-
-    done = 0
-    # k-times product between the matrix and the vector
-    while done == G.number_of_nodes():
-        done = 0
-        new_auth_hub = M.dot(auth_hub)
-
-        auth_hub_norm = np.linalg.norm(auth_hub)
-
-        new_auth_hub = new_auth_hub / auth_hub_norm
-
-        for i in range(len(new_auth_hub)):
-            if abs(auth_hub[i] - new_auth_hub[i]) < 10 ** -14:
-                done += 1
-
-        auth_hub = new_auth_hub.copy()
-
-    pq_auth_hub = PriorityQueue()
-    for i in range(len(nodes)):
-        pq_auth_hub.add(nodes[i], -auth_hub[i])
-
-    return pq_auth_hub
-
-# PageRank algorithm implemented in his matrix version with k repetition of update rule and scaling factor s
-def matrix_pagerank(G, s):
-    n = G.number_of_nodes()
-
-    # Dizionario che associa ogni nodo al suo rispettivo indice nella matrice
-    nodes = {}
-    i = 0
-    for x in G.nodes():
-        nodes[x] = i
-        i += 1
-    # Rank vector initial set-up
-    rank = np.ones(n)/n
-
-    # Adjacency matrix of the stochastic graph
-    M = nx.adjacency_matrix(nx.stochastic_graph(G.to_directed()), G.nodes())
-    done = 0
-    # k-times update
-    while done == G.number_of_nodes():
-        done = 0
-        # We make the product and the we scale the resulting rank
-        new_rank = M.T.dot(rank)
-        new_rank = s*new_rank
-        for j in range(len(new_rank)):
-            new_rank[j] += (1-s)/n
-
-            if abs(new_rank[j] - rank[j]) < 10**-14:
-                done += 1
-        rank = new_rank.copy()
-
-    pq_rank = PriorityQueue()
-    for i in nodes.keys():
-        pq_rank.add(i, -rank[nodes[i]])
-
-    return pq_rank
 
 
 def selector(G, B):
-    # Calcolo clusters
-    graphs = bwt_cluster(G, 4)
+    sp_c, pqs1 = shapley_closeness_parallel(G, 4)
+    sp_d, pqs2 = shapley_degree(G)
+    sp_t, pqs3 = shapley_threshold(G, 10)
+    deg = degree(G)
+    cl, pqs4 = parallel_closeness_centrality(G, 4)
 
-    pqs1 = []
-    pqs2 = []
-    pqs3 = []
-    max = 0
-    max_i = -1
-    i = 0
-    el = []
-    print("NUMERO DI NODI NEI CLUSTER")
-    for graph in graphs:
-        # Verifica del cluster più numeroso
-        if max < graph.number_of_nodes():
-            max = graph.number_of_nodes()
-            max_i = i
-        print(graph.number_of_nodes())
-        # Salvataggio dei seed da selezionare per ogni cluster
-        el.append(int(B*graph.number_of_nodes()/G.number_of_nodes()))
-        if el[-1] > 0:
-            pqs1.append(matrix_hits(graph))
-            pqs2.append(matrix_pagerank(graph, 0.85))
-            pqs3.append(degree_centrality(graph))
-        else:
-            pqs1.append(PriorityQueue())
-            pqs2.append(PriorityQueue())
-            pqs3.append(PriorityQueue())
-        i = i + 1
+    sp_3 = dict()
+    sp_deg = dict()
+    sp_cl = dict()
+    sp_deg_cl = dict()
 
-    # aggiungiamo i restantanti elementi (rimasti a causa del troncamento) al cluster più numeroso
-    el[max_i] += B - el[0] - el[1] - el[2] - el[3]
+    max_c = max(sp_c.values())
+    min_c = min(sp_c.values())
+    for k in sp_c.keys():
+        sp_3[k] = (sp_c[k]-min_c)/(max_c-min_c)
+        sp_deg[k] = (sp_c[k]-min_c)/(max_c-min_c)
+        sp_cl[k] = (sp_c[k]-min_c)/(max_c-min_c)
+        sp_deg_cl[k] = (sp_c[k]-min_c)/(max_c-min_c)
 
-    print(el[0]+el[1]+el[2]+el[3])
+    max_d = max(sp_d.values())
+    min_d = min(sp_d.values())
+    for k in sp_d.keys():
+        sp_3[k] += (sp_d[k]-min_d)/(max_d-min_d)
+        sp_deg[k] += (sp_d[k]-min_d)/(max_d-min_d)
+        sp_cl[k] += (sp_d[k]-min_d)/(max_d-min_d)
+        sp_deg_cl[k] += (sp_d[k]-min_d)/(max_d-min_d)
+
+    max_t = max(sp_t.values())
+    min_t = min(sp_t.values())
+    for k in sp_t.keys():
+        sp_3[k] += (sp_t[k]-min_t)/(max_t-min_t)
+        sp_deg[k] += (sp_t[k]-min_t)/(max_t-min_t)
+        sp_cl[k] += (sp_t[k]-min_t)/(max_t-min_t)
+        sp_deg_cl[k] += (sp_t[k]-min_t)/(max_t-min_t)
+
+    max_d = max(deg.values())
+    min_d = min(deg.values())
+    for k in deg.keys():
+        sp_deg[k] += (deg[k]-min_d)/(max_d-min_d)
+        sp_deg_cl[k] += (deg[k]-min_d)/(max_d-min_d)
+
+    max_cl = max(cl.values())
+    min_cl = min(cl.values())
+    for k in cl.keys():
+        sp_cl[k] += (cl[k] - min_cl) / (max_cl - min_cl)
+        sp_deg_cl[k] += (cl[k] - min_cl) / (max_cl - min_cl)
+
+    pqs5 = PriorityQueue()
+    pqs6 = PriorityQueue()
+    pqs7 = PriorityQueue()
+    pqs8 = PriorityQueue()
+    for k in sp_3.keys():
+        pqs5.add(k, -sp_3[k])
+        pqs6.add(k, -sp_deg[k])
+        pqs7.add(k, -sp_cl[k])
+        pqs8.add(k, -sp_deg_cl[k])
 
     # selezioniamo i seed tra le varie Priority Queues
-    seeds1 = []
-    seeds2 = []
-    seeds3 = []
-    for i in range(len(graphs)):
-        for j in range(el[i]):
-            seeds1.append(int(pqs1[i].pop()))
-            seeds2.append(int(pqs2[i].pop()))
-            seeds3.append(int(pqs3[i].pop()))
-    return [seeds1, seeds2, seeds3]
+    seeds1 = []     # B shapley closeness
+    seeds2 = []     # B shapley degree
+    seeds3 = []     # B shapley threshold
+    seeds4 = []
+    seeds5 = []
+    seeds6 = []
+    seeds7 = []
+    seeds8 = []
+    # Riempio seeds1 e seeds2 con B elementi
+    for _ in range(B):
+        seeds1.append(int(pqs1.pop()))
+        seeds2.append(int(pqs2.pop()))
+        seeds3.append(int(pqs3.pop()))
+        seeds4.append(int(pqs4.pop()))
+        seeds5.append(int(pqs5.pop()))
+        seeds6.append(int(pqs6.pop()))
+        seeds7.append(int(pqs7.pop()))
+        seeds8.append(int(pqs8.pop()))
+
+    return [seeds1, seeds2, seeds3, seeds4, seeds5, seeds6, seeds7, seeds8]

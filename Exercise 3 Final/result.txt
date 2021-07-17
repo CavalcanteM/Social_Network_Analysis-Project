@@ -1,0 +1,182 @@
+p[c] = 0.19600724404865544
+
+Rete1 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1404   Risultati manipolati: 2891
+------------------------------------------------------
+Rete1 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1404   Risultati manipolati: 2900
+------------------------------------------------------
+Rete1 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1404   Risultati manipolati: 2877
+
+------------------------------------------------------
+
+Rete2 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 2913
+------------------------------------------------------
+Rete2 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 3068
+------------------------------------------------------
+Rete2 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 3082
+
+------------------------------------------------------
+
+Rete3 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 2928
+------------------------------------------------------
+Rete3 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 3097
+------------------------------------------------------
+Rete3 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 3112
+
+------------------------------------------------------
+
+Rete4 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 2908
+------------------------------------------------------
+Rete4 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 3088
+------------------------------------------------------
+Rete4 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 3092
+
+------------------------------------------------------
+
+Rete5 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 2910
+------------------------------------------------------
+Rete5 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 3094
+------------------------------------------------------
+Rete5 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 3098
+
+------------------------------------------------------
+
+Rete6 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 2889
+------------------------------------------------------
+Rete6 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 3051
+------------------------------------------------------
+Rete6 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1626   Risultati manipolati: 3058
+
+------------------------------------------------------
+
+p[c] = 0.6427292970943631
+
+Rete7 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 829   Risultati manipolati: 1900
+------------------------------------------------------
+Rete7 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 829   Risultati manipolati: 1914
+------------------------------------------------------
+Rete7 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 829   Risultati manipolati: 1914
+------------------------------------------------------
+
+Rete8 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 1903
+------------------------------------------------------
+Rete8 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2090
+------------------------------------------------------
+Rete8 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2098
+------------------------------------------------------
+
+Rete9 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 1880
+------------------------------------------------------
+Rete9 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2063
+------------------------------------------------------
+Rete9 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2061
+------------------------------------------------------
+
+Rete10 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 1903
+------------------------------------------------------
+Rete10 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2070
+------------------------------------------------------
+Rete10 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2063
+------------------------------------------------------
+
+Rete11 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 1892
+------------------------------------------------------
+Rete11 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2095
+------------------------------------------------------
+Rete11 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2094
+------------------------------------------------------
+
+Rete12 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 1891
+------------------------------------------------------
+Rete12 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2090
+------------------------------------------------------
+Rete12 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2091
+------------------------------------------------------
+
+Rete13 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 1883
+------------------------------------------------------
+Rete13 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2066
+------------------------------------------------------
+Rete13 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2080
+------------------------------------------------------
+
+Rete14 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 1845
+------------------------------------------------------
+Rete14 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 1967
+------------------------------------------------------
+Rete14 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 1997
+------------------------------------------------------
+
+Rete15 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 1906
+------------------------------------------------------
+Rete15 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2103
+------------------------------------------------------
+Rete15 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1052   Risultati manipolati: 2110
+------------------------------------------------------
+
+p[c] = 0.535254805555149
+
+Rete16 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1621   Risultati manipolati: 3370
+------------------------------------------------------
+Rete16 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1621   Risultati manipolati: 3390
+------------------------------------------------------
+Rete16 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1621   Risultati manipolati: 3383
+------------------------------------------------------
+
+Rete17 con Girman-Newman(4 cluster)+HITS su sottografi:
+Risultati truthful: 1819   Risultati manipolati: 3332
+------------------------------------------------------
+Rete17 con Girman-Newman(4 cluster)+Pagerank su sottografi:
+Risultati truthful: 1819   Risultati manipolati: 3499
+------------------------------------------------------
+Rete17 con Girman-Newman(4 cluster)+Degree su sottografi:
+Risultati truthful: 1819   Risultati manipolati: 3499
+------------------------------------------------------
+
