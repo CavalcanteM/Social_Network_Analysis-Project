@@ -1,66 +1,58 @@
 import csv
 import random
+import math
+from tqdm import tqdm
 
-# with open("training") as f:
-#     rows = csv.reader(f, delimiter=" ")
+def ICLogisticRegression(data, lr, delta):
+    t = 0 # time step
+    parameters = [0, 0, 0, 0] # [b0, b1, b2, b3]
+    delta_g = float('inf')
+    error = 0
+    prev_loss = 0
 
-#     train = []
-#     p = 0.9
-#     for row in rows:
-#         if random.random() < p: # devo includere
-#             num = int(random.uniform(5, 10)) # numero samples uguali
-#             num_right = int(num * 4/5)
-#             num_wrong = num - num_right
+    while delta_g > delta:
+        g = [0 for _ in range(len(parameters))]
 
-#             for i in range(num_right):
-#                 train.append(row)
+        for v in tqdm(range(len(data)), desc="Epoch " + str(t) + ": "):
+        # for item in data:
+            k = parameters[0] + data[v][0]*parameters[1] + data[v][1]*parameters[2] + data[v][2]*parameters[3]
+            g[0] = g[0] + 1 / (1 + math.exp(-k)) - data[v][3]
 
-#             for i in range(num_wrong):
-#                 if int(row[-1]) == 3:
-#                     label = 2
-#                 elif int(row[-1]) == 2:
-#                     label = random.choice([1, 3])
-#                 else:
-#                     label = 2
+            for i in range(1,len(parameters)):
+                g[i] = g[i] + (1 / (1 + math.exp(-k)) - data[v][3]) * data[v][i]
 
-#                 new_row = [row[0], row[1], row[2], label]
-#                 train.append(new_row)
+        for i in range(len(parameters)):
+            parameters[i] = max(parameters[i] - lr * g[i], 0)
 
-# random.shuffle(train)
-# with open("training_exp1.csv", "w", newline="\n") as f:
-#     writer = csv.writer(f, delimiter=",")
-#     for i in train:
-#         writer.writerow(i)
+        for item in data:
+            value = (1 / (1 + math.exp(-k)))
+            if value >= 0.5:
+                pred_label = 1
+            else:
+                pred_label = 0
+            error += abs(pred_label - item[3])
+        
+        loss = error/len(data)
+        delta_g = loss - prev_loss
+        loss = prev_loss
+        error = 0
+        t = t + 1
 
-with open("training_exp1.csv") as f:
+    return parameters
+
+with open("training_exp1_first.csv") as f:
     rows = csv.reader(f, delimiter=",")
 
-    new_rows = []
+    data = []
     for row in rows:
-        if int(row[-1]) == 2 or int(row[-1]) == 3:
-            row[-1] = 1
-        else:
-            row[-1] = 0
-        new_rows.append(row)
+        for i in range(len(row)):
+            if row[i] == "*":
+                row[i] = -1
 
-    with open("training_exp1_first.csv", "w", newline="\n") as f:
-        writer = csv.writer(f, delimiter=",")
-        for i in new_rows:
-            writer.writerow(i)
+        new_row = [int(row[0]), int(row[1]), int(row[2]), int(row[3])]
+        data.append(new_row)
 
-with open("training_exp1.csv") as f:
-    rows = csv.reader(f, delimiter=",")
+    lr = 10**-2
+    delta = 10**-2
 
-    new_rows = []
-    for row in rows:
-        if int(row[-1]) == 2: 
-            row[-1] = 0
-            new_rows.append(row)
-        elif int(row[-1]) == 3:
-            row[-1] = 1
-            new_rows.append(row)
-
-    with open("training_exp1_second.csv", "w", newline="\n") as f:
-        writer = csv.writer(f, delimiter=",")
-        for i in new_rows:
-            writer.writerow(i)           
+    print(ICLogisticRegression(data, lr, delta))
