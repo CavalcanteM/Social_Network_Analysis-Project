@@ -18,7 +18,7 @@ def load_graph(filename):
     return G
 
 
-G = load_graph('exercise2_final/nets/net_13')
+G = load_graph('../exercise2_final/nets/net_13')
 
 start = time.time()
 print("---------- Shapley Degree ----------")

@@ -6,8 +6,8 @@ import itertools as it
 import math
 from joblib import Parallel, delayed
 from lesson1 import stream_diam, num_triangles, diameter
-from betweenness import chunks_set, parallel_betweenness
-from closeness import chunks, parallel_closeness
+from exercise2.betweenness import chunks_set, parallel_betweenness
+from exercise2.closeness import chunks, parallel_closeness
 from lesson4 import GenWS2DG
 import time
 
