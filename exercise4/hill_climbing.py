@@ -1,5 +1,3 @@
-from operator import ne, truth
-from scipy.sparse.construct import rand
 from sklearn.linear_model import LinearRegression
 import csv
 import numpy as np
