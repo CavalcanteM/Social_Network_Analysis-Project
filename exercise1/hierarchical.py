@@ -30,5 +30,22 @@ def hierarchical(G):
                 pq.add(frozenset([s[0]|s[1], w]), max(len(s[0])+len(s[1]),len(w)))
 
         clusters.add((s[0]|s[1]))
+    
+    # We save each cluster in a different file
+    with open("HIERARCHICAL/optimized/cluster0.txt", "w") as f:
+        for element in clusters[0]:
+            f.write(element + "\n")
+
+    with open("HIERARCHICAL/optimized/cluster1.txt", "w") as f:
+        for element in clusters[1]:
+            f.write(element + "\n")
+
+    with open("HIERARCHICAL/optimized/cluster2.txt", "w") as f:
+        for element in clusters[2]:
+            f.write(element + "\n")
+
+    with open("HIERARCHICAL/optimized/cluster3.txt", "w") as f:
+        for element in clusters[3]:
+            f.write(element + "\n")
 
     return clusters
