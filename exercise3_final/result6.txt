@@ -1,0 +1,256 @@
+Rete1 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1368
+------------------------------------------------------
+Rete1 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1363
+------------------------------------------------------
+Rete1 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1364
+------------------------------------------------------
+Rete1 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1369
+------------------------------------------------------
+Rete1 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1367
+------------------------------------------------------
+
+Rete2 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1392
+------------------------------------------------------
+Rete2 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1388
+------------------------------------------------------
+Rete2 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1396
+------------------------------------------------------
+Rete2 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1394
+------------------------------------------------------
+Rete2 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1392
+------------------------------------------------------
+
+Rete3 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1331
+------------------------------------------------------
+Rete3 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1383
+------------------------------------------------------
+Rete3 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1379
+------------------------------------------------------
+Rete3 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1384
+------------------------------------------------------
+Rete3 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1382
+------------------------------------------------------
+
+Rete4 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1418
+------------------------------------------------------
+Rete4 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1411
+------------------------------------------------------
+Rete4 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1421
+------------------------------------------------------
+Rete4 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1415
+------------------------------------------------------
+Rete4 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1413
+------------------------------------------------------
+
+Rete5 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1397
+------------------------------------------------------
+Rete5 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1390
+------------------------------------------------------
+Rete5 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1386
+------------------------------------------------------
+Rete5 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1393
+------------------------------------------------------
+Rete5 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1411
+------------------------------------------------------
+
+Rete6 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1434
+------------------------------------------------------
+Rete6 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1434
+------------------------------------------------------
+Rete6 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1348
+------------------------------------------------------
+Rete6 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1447
+------------------------------------------------------
+Rete6 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1431
+------------------------------------------------------
+
+Rete7 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1323
+------------------------------------------------------
+Rete7 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1364
+------------------------------------------------------
+Rete7 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1362
+------------------------------------------------------
+Rete7 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1368
+------------------------------------------------------
+Rete7 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1364
+------------------------------------------------------
+
+Rete8 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1337
+------------------------------------------------------
+Rete8 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1371
+------------------------------------------------------
+Rete8 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1374
+------------------------------------------------------
+Rete8 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1370
+------------------------------------------------------
+Rete8 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1365
+------------------------------------------------------
+
+Rete9 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1329
+------------------------------------------------------
+Rete9 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1341
+------------------------------------------------------
+Rete9 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1361
+------------------------------------------------------
+Rete9 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1340
+------------------------------------------------------
+Rete9 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1328
+------------------------------------------------------
+
+Rete10 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1396
+------------------------------------------------------
+Rete10 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1407
+------------------------------------------------------
+Rete10 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1399
+------------------------------------------------------
+Rete10 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1415
+------------------------------------------------------
+Rete10 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1411
+------------------------------------------------------
+
+Rete11 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1382
+------------------------------------------------------
+Rete11 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1354
+------------------------------------------------------
+Rete11 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1355
+------------------------------------------------------
+Rete11 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1360
+------------------------------------------------------
+Rete11 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1363
+------------------------------------------------------
+
+Rete12 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1368
+------------------------------------------------------
+Rete12 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1350
+------------------------------------------------------
+Rete12 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1353
+------------------------------------------------------
+Rete12 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1365
+------------------------------------------------------
+Rete12 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1365
+------------------------------------------------------
+
+Rete13 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1370
+------------------------------------------------------
+Rete13 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1383
+------------------------------------------------------
+Rete13 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1381
+------------------------------------------------------
+Rete13 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1383
+------------------------------------------------------
+Rete13 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1378
+------------------------------------------------------
+
+Rete15 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1352
+------------------------------------------------------
+Rete15 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1345
+------------------------------------------------------
+Rete15 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1346
+------------------------------------------------------
+Rete15 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1358
+------------------------------------------------------
+Rete15 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1360
+------------------------------------------------------
+
+Rete16 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1374
+------------------------------------------------------
+Rete16 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1406
+------------------------------------------------------
+Rete16 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1408
+------------------------------------------------------
+Rete16 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1396
+------------------------------------------------------
+Rete16 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1389
+------------------------------------------------------
+
+Rete17 con Shapley Closeness:
+Risultati truthful: 1019   Risultati manipolati: 1388
+------------------------------------------------------
+Rete17 con Shapley Degree:
+Risultati truthful: 1019   Risultati manipolati: 1389
+------------------------------------------------------
+Rete17 con Shapley Threshold(k=10):
+Risultati truthful: 1019   Risultati manipolati: 1343
+------------------------------------------------------
+Rete17 con CLOSENESS+DEGREE+THRESHOLD:
+Risultati truthful: 1019   Risultati manipolati: 1397
+------------------------------------------------------
+Rete17 con CLOSENESS+DEGREE:
+Risultati truthful: 1019   Risultati manipolati: 1395
+------------------------------------------------------
+
