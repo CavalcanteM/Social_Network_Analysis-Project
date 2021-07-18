@@ -2,7 +2,6 @@ import csv
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
-import itertools as it
 import math
 from joblib import Parallel, delayed
 from lesson1 import stream_diam, num_triangles, diameter
