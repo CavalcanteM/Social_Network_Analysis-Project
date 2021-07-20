@@ -54,6 +54,7 @@ print("Tempo classificazione samples: ", end - start)
 # Truthfulness verification
 start = time.time()
 data_with_zero = []
+data_with_star = []
 for row in two_star_partition:
     star_found = 0
     new_row = []
@@ -65,6 +66,7 @@ for row in two_star_partition:
             new_row.append(i)
     if star_found == 1:
         data_with_zero.append(new_row)
+        data_with_star.append(row)
 
 truthful = 1
 for item in data_with_zero:
@@ -157,3 +159,38 @@ print("Samples classificati correttamente: ", right)
 print("Samples non classificati correttamente: ", wrong)
 end = time.time()
 print("Tempo classificazione samples: ", end - start)
+
+truthful = 1
+for el_with_star, el_with_zero in zip(data_with_star,data_with_zero):
+    new_el_with_star = []
+    for i in el_with_star:
+        if i == '*':
+            new_el_with_star.append(-1)
+        else:
+            new_el_with_star.append(int(i))
+    k_with_star = parameters[0] + int(new_el_with_star[0])*parameters[1] + int(new_el_with_star[1])*parameters[2] + int(new_el_with_star[2])*parameters[3]
+    k_with_zero = parameters[0] + int(el_with_zero[0])*parameters[1] + int(el_with_zero[1])*parameters[2] + int(el_with_zero[2])*parameters[3]
+    value_with_star = (1 / (1 + math.exp(-k_with_star)))
+    value_with_zero = (1 / (1 + math.exp(-k_with_zero)))
+    if value_with_star >= 0.5: # 2 o 3 stelle
+        k1 = parameters1[0] + int(new_el_with_star[0])*parameters1[1] + int(new_el_with_star[1])*parameters1[2] + int(new_el_with_star[2])*parameters1[3]
+        value1 = (1 / (1 + math.exp(-k1)))
+        if value1 >= 0.5: # 3 stelle
+            pred_label_with_star = 3
+        else: # 2 stelle
+            pred_label_with_star = 2
+    else: # 1 stella
+        pred_label_with_star = 1
+    if value_with_zero >= 0.5: # 2 o 3 stelle
+        k1 = parameters1[0] + int(el_with_zero[0])*parameters1[1] + int(el_with_zero[1])*parameters1[2] + int(el_with_zero[2])*parameters1[3]
+        value1 = (1 / (1 + math.exp(-k1)))
+        if value1 >= 0.5: # 3 stelle
+            pred_label_with_zero = 3
+        else: # 2 stelle
+            pred_label_with_zero = 2
+    else: # 1 stella
+        pred_label_with_zero = 1
+    if pred_label_with_star > pred_label_with_zero:
+        truthful = 0
+
+print("LR Truthful: ", truthful)
