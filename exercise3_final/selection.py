@@ -3,7 +3,6 @@ import networkx as nx
 from priorityq import PriorityQueue
 from joblib import Parallel, delayed
 import itertools as it
-from tqdm import tqdm
 from exercise1_final.shapley import shapley_degree, shapley_threshold
 
 
@@ -44,7 +43,7 @@ def shapley_closeness(G, nodes):
     shapley_values = {v: 0 for v in G.nodes()}
     list_nodes = list(nodes)
 
-    for v in tqdm(range(len(list_nodes)), desc="Calcolo Shapley Closeness in corso..."):
+    for v in range(len(list_nodes)):
         nodes, distances = bfs(G, list_nodes[v])
         sum = 0
         index = G.number_of_nodes() - 1
