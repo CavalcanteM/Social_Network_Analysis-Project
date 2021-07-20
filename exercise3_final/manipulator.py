@@ -62,119 +62,18 @@ def FriedkinJohnsen(G, stubborness, belief):
 # b -> il vettore delle belief iniziali
 def manipulation(G, p, c, B, b):
     votes = plurality_voting_rule(p, b)
-    b1 = b[:]
-    b2 = b[:]
-    b3 = b[:]
-    b4 = b[:]
-    b5 = b[:]
-    b6 = b[:]
-    b7 = b[:]
-    b8 = b[:]
     # SELECTION OF B NODES
     seeds = selector(G, B)
 
     # Definizione della stubborness
     stubborness = np.ones(G.number_of_nodes())/2
 
-    for x in seeds[0]:
+    for x in seeds:
         stubborness[x] = 1
-        b1[x] = p[c]
+        b[x] = p[c]
 
-    new_b1 = FriedkinJohnsen(G, stubborness, b1)
+    new_b = FriedkinJohnsen(G, stubborness, b)
 
-    new_votes1 = plurality_voting_rule(p, new_b1)
+    new_votes = plurality_voting_rule(p, new_b)
 
-    print("SHAPLEY CLOSENESS," + str(votes[c]) + "," + str(new_votes1[c]))
-
-    # Definizione della stubborness
-    stubborness = np.ones(G.number_of_nodes()) / 2
-
-    for x in seeds[1]:
-        stubborness[x] = 1
-        b2[x] = p[c]
-
-    new_b2 = FriedkinJohnsen(G, stubborness, b2)
-
-    new_votes2 = plurality_voting_rule(p, new_b2)
-
-    print("SHAPLEY DEGREE," + str(votes[c]) + "," + str(new_votes2[c]))
-
-    # Definizione della stubborness
-    stubborness = np.ones(G.number_of_nodes()) / 2
-
-    for x in seeds[2]:
-        stubborness[x] = 1
-        b3[x] = p[c]
-
-    new_b3 = FriedkinJohnsen(G, stubborness, b3)
-
-    new_votes3 = plurality_voting_rule(p, new_b3)
-
-    print("SHAPLEY THRESHOLD," + str(votes[c]) + "," + str(new_votes3[c]))
-
-    # Definizione della stubborness
-    stubborness = np.ones(G.number_of_nodes()) / 2
-
-    for x in seeds[3]:
-        stubborness[x] = 1
-        b4[x] = p[c]
-
-    new_b4 = FriedkinJohnsen(G, stubborness, b4)
-
-    new_votes4 = plurality_voting_rule(p, new_b4)
-
-    print("CLOSENESS," + str(votes[c]) + "," + str(new_votes4[c]))
-
-    # Definizione della stubborness
-    stubborness = np.ones(G.number_of_nodes()) / 2
-
-    for x in seeds[4]:
-        stubborness[x] = 1
-        b5[x] = p[c]
-
-    new_b5 = FriedkinJohnsen(G, stubborness, b5)
-
-    new_votes5 = plurality_voting_rule(p, new_b5)
-
-    print("SHAPLEY CLOSENESS+DEGREE+THRESHOLD," + str(votes[c]) + "," + str(new_votes5[c]))
-
-    # Definizione della stubborness
-    stubborness = np.ones(G.number_of_nodes()) / 2
-
-    for x in seeds[5]:
-        stubborness[x] = 1
-        b6[x] = p[c]
-
-    new_b6 = FriedkinJohnsen(G, stubborness, b6)
-
-    new_votes6 = plurality_voting_rule(p, new_b6)
-
-    print("SHAPLEY CLOSENESS+DEGREE+THRESHOLD+DEGREE NORMALE," + str(votes[c]) + "," + str(new_votes6[c]))
-
-    # Definizione della stubborness
-    stubborness = np.ones(G.number_of_nodes()) / 2
-
-    for x in seeds[6]:
-        stubborness[x] = 1
-        b7[x] = p[c]
-
-    new_b7 = FriedkinJohnsen(G, stubborness, b7)
-
-    new_votes7 = plurality_voting_rule(p, new_b7)
-
-    print("SHAPLEY CLOSENESS+DEGREE+THRESHOLD+CLOSENESS NORMALE," + str(votes[c]) + "," + str(new_votes7[c]))
-
-    # Definizione della stubborness
-    stubborness = np.ones(G.number_of_nodes()) / 2
-
-    for x in seeds[7]:
-        stubborness[x] = 1
-        b8[x] = p[c]
-
-    new_b8 = FriedkinJohnsen(G, stubborness, b8)
-
-    new_votes8 = plurality_voting_rule(p, new_b8)
-
-    print("SHAPLEY CLOSENESS+DEGREE+THRESHOLD+(CLOSENESS e DEGREE NORMALE)," + str(votes[c]) + "," + str(new_votes8[c]))
-
-    return [votes[c], new_votes1[c], new_votes2[c], new_votes3[c], new_votes4[c], new_votes5[c], new_votes6[c], new_votes7[c], new_votes8[c]]
+    print("13," + str(votes[c]) + "," + str(new_votes[c]))
