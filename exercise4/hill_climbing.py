@@ -21,8 +21,11 @@ def HillClimbing(sample, two_feature_classifier, three_feature_classifier):
 
         return max(row1_value, row2_value, row3_value)
 
-random.seed(42)
+# random.seed(42)
 
+complete_truthful = 1
+
+# for _ in range(200):
 data_two_feature = []
 labels_two_feature = []
 data_three_feature = []
@@ -53,13 +56,13 @@ with open("training.csv", "r") as f:
 two_feature = LinearRegression().fit(data_two_feature, labels_two_feature)
 three_feature = LinearRegression().fit(data_three_feature, labels_three_feature)
 
-num_right = 0
-num_wrong = 0
-for i in range(len(test)):
-    if HillClimbing(test[i], two_feature, three_feature) == int(labels_test[i]):
-        num_right += 1
-    else:
-        num_wrong += 1
+# num_right = 0
+# num_wrong = 0
+# for i in range(len(test)):
+#     if HillClimbing(test[i], two_feature, three_feature) == int(labels_test[i]):
+#         num_right += 1
+#     else:
+#         num_wrong += 1
 
 # print("Experiment normal")
 # print("Num element:",len(test))
@@ -72,10 +75,98 @@ labels_two_feature_altered = []
 data_three_feature_altered = []
 labels_three_feature_altered = []
 
+# for el, label in zip(data_two_feature, labels_two_feature):
+#     for i in range(random.randrange(10,21)):
+#         data_two_feature_altered.append(el)
+#         if random.random() < 0.8:
+#             labels_two_feature_altered.append(label)
+#         else:
+#             if label == '1' or label == '3':
+#                 labels_two_feature_altered.append('2')
+#             else:
+#                 c = random.choice([-1,1])
+#                 labels_two_feature_altered.append(str(int(label)+c))
+
+# for el, label in zip(data_three_feature, labels_three_feature):
+#     for i in range(random.randrange(10000,20000)):
+#         data_three_feature_altered.append(el)
+#         if random.random() < 0.7:
+#             labels_three_feature_altered.append(label)
+#         else:
+#             if label == '1' or label == '3':
+#                 labels_three_feature_altered.append('2')
+#             else:
+#                 c = random.choice([-1,1])
+#                 labels_three_feature_altered.append(str(int(label)+c))
+# for el, label in zip(data_two_feature, labels_two_feature):
+#     value = 0
+#     for i in el:
+#         value += i
+#     value = value / 2
+#     for i in range(random.randrange(10000,20000)):
+#         data_two_feature_altered.append(el)
+#         if value < 1.5:
+#             p = 0.05
+#         elif value >= 1.5 and value < 2.5:
+#             p = 0.2
+#         elif value >= 2.5 and value < 3.5:
+#             p = 0.05
+#         elif value >= 3.5 and value < 4.5:
+#             p = 0.2
+#         else:
+#             p = 0.05
+#         if random.random() < (1-p):
+#             labels_two_feature_altered.append(label)
+#         else:
+#             if label == '1' or label == '3':
+#                 labels_two_feature_altered.append('2')
+#             else:
+#                 c = random.choice([-1,1])
+#                 labels_two_feature_altered.append(str(int(label)+c))
+
+# for el, label in zip(data_three_feature, labels_three_feature):
+#     value = 0
+#     for i in el:
+#         value += i
+#     value = value / 2
+#     for i in range(random.randrange(10000,20000)):
+#         data_three_feature_altered.append(el)
+#         if value < 1.5:
+#             p = 0.05
+#         elif value >= 1.5 and value < 2.5:
+#             p = 0.2
+#         elif value >= 2.5 and value < 3.5:
+#             p = 0.1
+#         elif value >= 3.5 and value < 4.5:
+#             p = 0.3
+#         else:
+#             p = 0.05
+#         if random.random() < (1-p):
+#             labels_three_feature_altered.append(label)
+#         else:
+#             if label == '1' or label == '3':
+#                 labels_three_feature_altered.append('2')
+#             else:
+#                 c = random.choice([-1,1])
+#                 labels_three_feature_altered.append(str(int(label)+c))
 for el, label in zip(data_two_feature, labels_two_feature):
-    for i in range(random.randrange(10,21)):
+    value = 0
+    for i in el:
+        value += i
+    value = value / 2
+    for i in range(random.randrange(10000,20001)):
         data_two_feature_altered.append(el)
-        if random.random() < 0.8:
+        if value < 1.5:
+            p = random.choice(np.arange(0.03,0.08,0.01))
+        elif value >= 1.5 and value < 2.5:
+            p = random.choice(np.arange(0.15,0.25,0.01))
+        elif value >= 2.5 and value < 3.5:
+            p = random.choice(np.arange(0.03,0.08,0.01))
+        elif value >= 3.5 and value < 4.5:
+            p = random.choice(np.arange(0.15,0.25,0.01))
+        else:
+            p = random.choice(np.arange(0.03,0.08,0.01))
+        if random.random() < (1-p):
             labels_two_feature_altered.append(label)
         else:
             if label == '1' or label == '3':
@@ -85,9 +176,23 @@ for el, label in zip(data_two_feature, labels_two_feature):
                 labels_two_feature_altered.append(str(int(label)+c))
 
 for el, label in zip(data_three_feature, labels_three_feature):
-    for i in range(random.randrange(10000,20000)):
+    value = 0
+    for i in el:
+        value += i
+    value = value / 2
+    for i in range(random.randrange(10000,20001)):
         data_three_feature_altered.append(el)
-        if random.random() < 0.7:
+        if value < 1.5:
+            p = random.choice(np.arange(0.03,0.08,0.01))
+        elif value >= 1.5 and value < 2.5:
+            p = random.choice(np.arange(0.15,0.25,0.01))
+        elif value >= 2.5 and value < 3.5:
+            p = random.choice(np.arange(0.07,0.12,0.01))
+        elif value >= 3.5 and value < 4.5:
+            p = random.choice(np.arange(0.25,0.35,0.01))
+        else:
+            p = random.choice(np.arange(0.03,0.08,0.01))
+        if random.random() < (1-p):
             labels_three_feature_altered.append(label)
         else:
             if label == '1' or label == '3':
@@ -96,27 +201,26 @@ for el, label in zip(data_three_feature, labels_three_feature):
                 c = random.choice([-1,1])
                 labels_three_feature_altered.append(str(int(label)+c))
 
-
 t1 = time.time()
 two_feature_altered = LinearRegression().fit(data_two_feature_altered, labels_two_feature_altered)
 three_feature_altered = LinearRegression().fit(data_three_feature_altered, labels_three_feature_altered)
 t2 = time.time()
 print("Altered training time: ", t2-t1)
 
-num_right = 0
-num_wrong = 0
-wrong_cases = []
-t = 0
-for i in range(len(test)):
-    t1 = time.time()
-    predicted = HillClimbing(test[i], two_feature_altered, three_feature_altered)
-    t2 = time.time()
-    t += (t2-t1)
-    if predicted == int(labels_test[i]):
-        num_right += 1
-    else:
-        wrong_cases.append([test[i],labels_test[i],predicted])
-        num_wrong += 1
+# num_right = 0
+# num_wrong = 0
+# wrong_cases = []
+# t = 0
+# for i in range(len(test)):
+#     t1 = time.time()
+#     predicted = HillClimbing(test[i], two_feature_altered, three_feature_altered)
+#     t2 = time.time()
+#     t += (t2-t1)
+#     if predicted == int(labels_test[i]):
+#         num_right += 1
+#     else:
+#         wrong_cases.append([test[i],labels_test[i],predicted])
+#         num_wrong += 1
 
 # print("Experiment altered completed")
 # print("Medium time: ", t/len(test))
@@ -163,8 +267,11 @@ for el1, el2 in zip(data_with_star, data_with_zero):
         print(el2)
         print(HillClimbing(el2,two_feature,three_feature))
         truthful = 0
+        break
 
 print("Truthful normal: ", truthful)
+if truthful == 0:
+    complete_truthful = 0
 
 truthful = 1
 for el1, el2 in zip(data_with_star, data_with_zero):
@@ -174,5 +281,23 @@ for el1, el2 in zip(data_with_star, data_with_zero):
         print(el2)
         print(HillClimbing(el2,two_feature_altered,three_feature_altered))
         truthful = 0
+        break
 
 print("Truthful altered: ", truthful)
+if truthful == 0:
+    complete_truthful = 0
+
+print("Complete truthful: ", complete_truthful)
+
+with open("training.csv", "r") as f:
+    rows = csv.reader(f, delimiter=",")
+    with open("result.csv", "w", newline="\n") as out:
+        writer = csv.writer(out)
+        with open("differences.csv", "w", newline="\n") as out2:
+            dif_writer = csv.writer(out2)
+            for row in rows:
+                value = HillClimbing(row[:-1],two_feature_altered,three_feature_altered)
+                write_s = [row[0],row[1],row[2],row[3],value]
+                writer.writerow(write_s)
+                if value != int(row[-1]):
+                    dif_writer.writerow(write_s)
