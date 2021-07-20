@@ -1,5 +1,5 @@
 import networkx as nx
-from tqdm import tqdm
+# from tqdm import tqdm
 
 # Polynomial-time algorithm to compute the Shapley value based on the characteristic function 'shapley degree'
 # value(C) = |C| + |N(C)| where N(C) is the set of nodes outside C with at least one neighbor in C.
@@ -16,7 +16,8 @@ def shapley_degree(G):
     shapley_values = dict()
     list_nodes = list(G.nodes())
 
-    for v in tqdm(range(len(list_nodes)), desc="Calcolo Shapley Degree in corso..."):
+    # for v in tqdm(range(len(list_nodes)), desc="Calcolo Shapley Degree in corso..."):
+    for v in range(len(list_nodes)):
         shapley_values[list_nodes[v]] = 1/(1+G.degree(list_nodes[v]))
         for u in G.neighbors(list_nodes[v]):
             shapley_values[list_nodes[v]] += 1/(1+G.degree(u))
@@ -40,7 +41,8 @@ def shapley_threshold(G, k):
     shapley_values = dict()
     list_nodes = list(G.nodes())
     
-    for v in tqdm(range(len(list_nodes)), desc="Calcolo Shapley Threshold in corso..."):
+    # for v in tqdm(range(len(list_nodes)), desc="Calcolo Shapley Threshold in corso..."):
+    for v in range(len(list_nodes)):
         shapley_values[list_nodes[v]] = min(1, k/(1+G.degree(list_nodes[v])))
         for u in G.neighbors(list_nodes[v]):
             shapley_values[list_nodes[v]] += max(0, (G.degree(u)-k+1)/((G.degree(u)*(1+G.degree(u)))))
@@ -80,7 +82,8 @@ def shapley_closeness(G):
     shapley_values = {v:0 for v in G.nodes()}
     list_nodes = list(G.nodes())
     
-    for v in tqdm(range(len(list_nodes)), desc="Calcolo Shapley Closeness in corso..."):
+    # for v in tqdm(range(len(list_nodes)), desc="Calcolo Shapley Closeness in corso..."):
+    for v in range(len(list_nodes)):
         nodes, distances = bfs(G, list_nodes[v])
         sum = 0
         index = G.number_of_nodes() - 1
