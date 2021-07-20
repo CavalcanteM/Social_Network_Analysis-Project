@@ -1,20 +1,26 @@
 from distribution_generator import dataset_generator, distribution
+from iclr import ICLogisticRegression
 import networkx as nx
 import csv
 from mincut import MinCut
 import time
+import math
+import random
 
+# Distribution generator for min cut algorithm
 start = time.time()
 dataset_generator() 
 d1, d2 = distribution()
 end = time.time()
 print("Tempo generazione distribuzione: ", end - start)
 
+# Min cut algorithm execution
 start = time.time()
 one_star_partition, two_star_partition, three_star_partition = MinCut(d1, d2)
 end = time.time()
 print("Tempo creazione partizioni: ", end - start)
 
+# Label prediction on test samples
 start = time.time()
 correct = 0
 wrong = 0
@@ -45,6 +51,7 @@ print("Correct:", correct)
 end = time.time()
 print("Tempo classificazione samples: ", end - start)
 
+# Truthfulness verification
 start = time.time()
 data_with_zero = []
 for row in two_star_partition:
@@ -66,6 +73,87 @@ for item in data_with_zero:
         truthful = 0
         break
 
-print("Truthful altered: ", truthful)
+print("Truthful: ", truthful)
 end = time.time()
 print("Tempo verifica truthfulness: ", end - start)
+
+# Incentive Compatible Logistic Regression
+data = []
+with open("../training_exp1_first.csv") as f:
+    rows = csv.reader(f, delimiter=",")
+
+    for row in rows:
+        for i in range(len(row)):
+            if row[i] == "*":
+                row[i] = -1
+
+        new_row = [int(row[0]), int(row[1]), int(row[2]), int(row[3])]
+        data.append(new_row)
+
+# First Logistic Regression training
+start = time.time()
+lr = 10**-4
+delta = 10**-5
+beta = [-5,0.5,0,0.1] # [b0, b1, b2, b3]
+parameters = ICLogisticRegression(data, lr, delta, beta)
+end = time.time()
+print("Tempo addestramento primo classificatore: ", end - start)
+
+data = []
+with open("../training_exp1_second.csv") as f:
+    rows = csv.reader(f, delimiter=",")
+
+    for row in rows:
+        for i in range(len(row)):
+            if row[i] == "*":
+                row[i] = -1
+
+        new_row = [int(row[0]), int(row[1]), int(row[2]), int(row[3])]
+        data.append(new_row)
+
+start = time.time()
+# Second Logistic Regression training
+beta = [-5, 0.6, 0.4, 0.3] # [b0, b1, b2, b3] # @TODO: da determinare
+parameters1 = ICLogisticRegression(data, lr, delta, beta)
+end = time.time()
+print("Tempo addestramento secondo classificatore: ", end - start)
+
+samples = []
+with open("../training.csv") as f:
+    rows = csv.reader(f, delimiter=",")
+
+    for row in rows:
+        for i in range(len(row)):
+            if row[i] == "*":
+                row[i] = -1
+
+        new_row = [int(row[0]), int(row[1]), int(row[2]), int(row[3])]
+        samples.append(new_row)
+
+start = time.time()
+# Classification of test samples
+right = 0
+wrong = 0
+for item in samples:
+    k = parameters[0] + item[0]*parameters[1] + item[1]*parameters[2] + item[2]*parameters[3]
+    value = (1 / (1 + math.exp(-k)))
+    if value >= 0.5: # 2 o 3 stelle
+        k1 = parameters1[0] + item[0]*parameters1[1] + item[1]*parameters1[2] + item[2]*parameters1[3]
+        value1 = (1 / (1 + math.exp(-k1)))
+        if value1 >= 0.5: # 3 stelle
+            pred_label = 3
+        else: # 2 stelle
+            pred_label = 2
+    else: # 1 stella
+        pred_label = 1
+
+    if pred_label == item[3]:
+        right += 1
+    else:
+        wrong += 1
+        print(item)
+
+print("Samples classificati correttamente: ", right)
+print("Samples non classificati correttamente: ", wrong)
+end = time.time()
+print("Tempo classificazione samples: ", end - start)
