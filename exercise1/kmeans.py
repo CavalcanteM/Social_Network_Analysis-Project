@@ -5,7 +5,7 @@ from joblib import Parallel, delayed
 import itertools as it
 import math
 from priorityq import PriorityQueue
-
+from functions import save_clusters
 
 # Initial phase in which we add one vertex to each cluster (we assume the presence of only 4 clusters).
 # Each vertex is selected from a list of non neighbors of the before selected vertex (if and only if it is possible).
@@ -157,21 +157,7 @@ def k_means(G):
     clusters = cluster_k_means(G, cluster0, cluster1, cluster2, cluster3)
 
     # We save each cluster in a different file
-    with open("kmeans_result/cluster0.txt", "w") as f:
-        for element in clusters[0]:
-            f.write(element + "\n")
-
-    with open("kmeans_result/cluster1.txt", "w") as f:
-        for element in clusters[1]:
-            f.write(element + "\n")
-
-    with open("kmeans_result/cluster2.txt", "w") as f:
-        for element in clusters[2]:
-            f.write(element + "\n")
-
-    with open("kmeans_result/cluster3.txt", "w") as f:
-        for element in clusters[3]:
-            f.write(element + "\n")
+    save_clusters("kmeans_result", clusters[0], clusters[1], clusters[2], clusters[3])
 
     # if the graph is connected len(clusters[4]) will be equal to 0
     if len(clusters[4]) > 0:
@@ -239,18 +225,7 @@ def parallel_k_means(G, j):
             cluster4 = cluster4 | result[4]
 
     # We save each cluster in a different file
-    with open("kmeans_parallel_result/cluster0.txt", "w") as f:
-        for element in cluster0:
-            f.write(element + "\n")
-    with open("kmeans_parallel_result/cluster1.txt", "w") as f:
-        for element in cluster1:
-            f.write(element + "\n")
-    with open("kmeans_parallel_result/cluster2.txt", "w") as f:
-        for element in cluster2:
-            f.write(element + "\n")
-    with open("kmeans_parallel_result/cluster3.txt", "w") as f:
-        for element in cluster3:
-            f.write(element + "\n")
+    save_clusters("kmeans_parallel_result", cluster0, cluster1, cluster2, cluster3)
 
     # cluster4 contains only the element that we can't add in cluster (not connected graph)
     if len(cluster4) > 0:
@@ -271,9 +246,9 @@ def parallel_k_means(G, j):
 # reducing the complexity of that operation from O(n*min(degree(el),len(cluster)) to O(min(len(cluster),len(samples)).
 # Because we remove from samples each element added to a cluster, we have:
 # at the start of the algorithm len(samples) = n-4, but len(cluster) = 1 -> O(min(len(cluster),len(samples)) = O(1)
-# at the end, in the worst case, len(cluster) = n-4 , but len(samples) = 1 -> O(min(len(cluster),len(samples)) = 0(1)
+# at the end, in the worst case, len(cluster) = n-4 , but len(samples) = 1 -> O(min(len(cluster),len(samples)) = O(1)
 # in the middle of the algorithm, in the worst case, len(cluster) = n/2 and len(samples)=n/2 ---->
-# ----> O(min(len(cluster),len(samples))  = 0(n/2)
+# ----> O(min(len(cluster),len(samples))  = O(n/2) = O(n)
 # So we have, O(min(len(cluster),len(samples)) << O(n*min(degree(el),len(cluster))
 # N.B. These operations are repeated n times.
 def opt_cluster_k_means(G, cluster0, cluster1, cluster2, cluster3, samples, parallel = False):
@@ -343,21 +318,7 @@ def optimized_k_means(G):
     (cluster0, cluster1, cluster2, cluster3, cluster4) = opt_cluster_k_means(G, cluster0, cluster1, cluster2, cluster3, samples)
 
     # We save each cluster in a different file
-    with open("optimized_kmeans_result/cluster0.txt", "w") as f:
-        for element in cluster0:
-            f.write(element + "\n")
-
-    with open("optimized_kmeans_result/cluster1.txt", "w") as f:
-        for element in cluster1:
-            f.write(element + "\n")
-
-    with open("optimized_kmeans_result/cluster2.txt", "w") as f:
-        for element in cluster2:
-            f.write(element + "\n")
-
-    with open("optimized_kmeans_result/cluster3.txt", "w") as f:
-        for element in cluster3:
-            f.write(element + "\n")
+    save_clusters("optimized_kmeans_result", cluster0, cluster1, cluster2, cluster3)
 
     # cluster4 contains only the element that we can't add in cluster (not connected graph)
     if len(cluster4) > 0:
@@ -406,25 +367,11 @@ def parallel_opt_k_means(G,j):
 
 
     # We save each cluster in a different file
-    with open("parallel_optimized_k_means_result/cluster0.txt", "w") as f:
-        for element in cluster0:
-            f.write(element + "\n")
-
-    with open("parallel_optimized_k_means_result/cluster1.txt", "w") as f:
-        for element in cluster1:
-            f.write(element + "\n")
-
-    with open("parallel_optimized_k_means_result/cluster2.txt", "w") as f:
-        for element in cluster2:
-            f.write(element + "\n")
-
-    with open("parallel_optimized_k_means_result/cluster3.txt", "w") as f:
-        for element in cluster3:
-            f.write(element + "\n")
+    save_clusters("parallel_optimized_kmeans_result", cluster0, cluster1, cluster2, cluster3)
 
     # cluster4 contains only the element that we can't add in cluster (not connected graph)
     if len(samples) > 0:
-        with open("parallel_optimized_k_means_result/cluster4.txt", "w") as f:
+        with open("parallel_optimized_kmeans_result/cluster4.txt", "w") as f:
             for element in samples:
                 f.write(element + "\n")
 
@@ -580,21 +527,7 @@ def optimized_k_means_v2(G):
 
 
     # We save each cluster in a different file
-    with open("K_MEANS/optimized_kmeans_v2_result/cluster0.txt", "w") as f:
-        for element in cluster0:
-            f.write(element + "\n")
-
-    with open("K_MEANS/optimized_kmeans_v2_result/cluster1.txt", "w") as f:
-        for element in cluster1:
-            f.write(element + "\n")
-
-    with open("K_MEANS/optimized_kmeans_v2_result/cluster2.txt", "w") as f:
-        for element in cluster2:
-            f.write(element + "\n")
-
-    with open("K_MEANS/optimized_kmeans_v2_result/cluster3.txt", "w") as f:
-        for element in cluster3:
-            f.write(element + "\n")
+    save_clusters("K_MEANS/optimized_kmeans_v2_result", cluster0, cluster1, cluster2, cluster3)
 
     # cluster4 contains only the element that we can't add in cluster (not connected graph)
     if len(cluster4) > 0:
@@ -637,18 +570,4 @@ def parallel_opt_k_means_v2(G,j):
         (cluster0, cluster1, cluster2, cluster3, samples) = opt_cluster_k_means_v2(G, cluster0, cluster1, cluster2, cluster3, samples)
 
     # We save each cluster in a different file
-    with open("K_MEANS/parallel_opt_k_means_v2_result/cluster0.txt", "w") as f:
-        for element in cluster0:
-            f.write(element + "\n")
-
-    with open("K_MEANS/parallel_opt_k_means_v2_result/cluster1.txt", "w") as f:
-        for element in cluster1:
-            f.write(element + "\n")
-
-    with open("K_MEANS/parallel_opt_k_means_v2_result/cluster2.txt", "w") as f:
-        for element in cluster2:
-            f.write(element + "\n")
-
-    with open("K_MEANS/parallel_opt_k_means_v2_result/cluster3.txt", "w") as f:
-        for element in cluster3:
-            f.write(element + "\n")
+    save_clusters("K_MEANS/parallel_opt_k_means_v2_result", cluster0, cluster1, cluster2, cluster3)

@@ -3,7 +3,6 @@ import networkx as nx
 import time
 from girman_newmann import bwt_cluster_naive, bwt_cluster_parallel, bwt_cluster_sampled, bwt_cluster_performance_based
 
-
 def load_graph():
 
     G = nx.Graph()
@@ -24,6 +23,5 @@ start = time.time()
 bwt_cluster_naive(G)
 #bwt_cluster_parallel(G, 4)
 #bwt_cluster_sampled(G, 0.05, 4)
-#bwt_cluster_performance_based(G, 0.05, 4)
 
 print(time.time()-start)

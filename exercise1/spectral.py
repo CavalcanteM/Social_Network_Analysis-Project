@@ -1,6 +1,7 @@
 import networkx as nx
 from scipy.sparse import linalg
 import numpy as np
+from functions import save_clusters
 
 # Naive spectral algorithm
 def spectral(G):
@@ -29,66 +30,7 @@ def spectral(G):
             c4.add(nodes[i])
 
     # We save each cluster in a different file
-    with open("SPECTRAL/spectral/cluster0.txt", "w") as f:
-        for element in c1:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/spectral/cluster1.txt", "w") as f:
-        for element in c2:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/spectral/cluster2.txt", "w") as f:
-        for element in c3:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/spectral/cluster3.txt", "w") as f:
-        for element in c4:
-            f.write(element + "\n")
-
-
-
-
-# Naive spectral algorithm in which the function eigsh return only the 2 eigenvalue with maximum value and
-# their eigenvector
-def spectral_2_eig(G):
-    n = G.number_of_nodes()
-    nodes = sorted(G.nodes())
-    L = nx.laplacian_matrix(G, nodes).asfptype()
-
-    w, v = linalg.eigsh(L, 2, which='SM')
-    print(w)
-
-    c1 = set()
-    c2 = set()
-    c3 = set()
-    c4 = set()
-
-    for i in range(n):
-        if v[i, 0] < 0 and v[i, 1] < 0:
-            c1.add(nodes[i])
-        elif v[i, 0] < 0:
-            c2.add(nodes[i])
-        elif v[i, 1] < 0:
-            c3.add(nodes[i])
-        else:
-            c4.add(nodes[i])
-
-    # We save each cluster in a different file
-    with open("SPECTRAL/spectral_2_eig/cluster0.txt", "w") as f:
-        for element in c1:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/spectral_2_eig/cluster1.txt", "w") as f:
-        for element in c2:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/spectral_2_eig/cluster2.txt", "w") as f:
-        for element in c3:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/spectral_2_eig/cluster3.txt", "w") as f:
-        for element in c4:
-            f.write(element + "\n")
+    save_clusters("SPECTRAL/spectral", c1, c2, c3, c4)
 
 
 # To reduce the graph size, we remove all the nodes with degree equal to 1 because all this node will be part
@@ -142,21 +84,8 @@ def sampled_spectral(G):
             print("ERROR")
 
     # We save each cluster in a different file
-    with open("SPECTRAL/sampled_spectral/cluster0.txt", "w") as f:
-        for element in c1:
-            f.write(element + "\n")
+    save_clusters("SPECTRAL/sampled_spectral", c1, c2, c3, c4)
 
-    with open("SPECTRAL/sampled_spectral/cluster1.txt", "w") as f:
-        for element in c2:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/sampled_spectral/cluster2.txt", "w") as f:
-        for element in c3:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/sampled_spectral/cluster3.txt", "w") as f:
-        for element in c4:
-            f.write(element + "\n")
 
 # This method is used to get an approximation of the dominant eigenvector of the inverse matrix of L.
 # The dominant eigenvector correspond to the eigenvector associated to the largest eigenvalue
@@ -182,7 +111,7 @@ def inverse_power_method(L, n):
 
     return x1
 
-
+# Naive spectral algorithm which uses the inverse power method
 def spectral_invpm(G):
     n = G.number_of_nodes()
     nodes = sorted(G.nodes())
@@ -278,21 +207,7 @@ def spectral_invpm(G):
                 c4.add(nodes_n[i])
 
     # We save each cluster in a different file
-    with open("SPECTRAL/spectral_invpm/cluster0.txt", "w") as f:
-        for element in c1:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/spectral_invpm/cluster1.txt", "w") as f:
-        for element in c2:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/spectral_invpm/cluster2.txt", "w") as f:
-        for element in c3:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/spectral_invpm/cluster3.txt", "w") as f:
-        for element in c4:
-            f.write(element + "\n")
+    save_clusters("SPECTRAL/spectral_invpm", c1, c2, c3, c4)
 
 
 # Same of the spectral_invpm but with sampling
@@ -411,18 +326,4 @@ def sampled_spectral_invpm(G):
             print("ERROR")
 
     # We save each cluster in a different file
-    with open("SPECTRAL/sampled_spectral_invpm/cluster0.txt", "w") as f:
-        for element in c1:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/sampled_spectral_invpm/cluster1.txt", "w") as f:
-        for element in c2:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/sampled_spectral_invpm/cluster2.txt", "w") as f:
-        for element in c3:
-            f.write(element + "\n")
-
-    with open("SPECTRAL/sampled_spectral_invpm/cluster3.txt", "w") as f:
-        for element in c4:
-            f.write(element + "\n")
+    save_clusters("SPECTRAL/sampled_spectral_invpm", c1, c2, c3, c4)

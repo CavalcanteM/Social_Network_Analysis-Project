@@ -1,6 +1,7 @@
 import csv
 from priorityq import PriorityQueue
 import networkx as nx
+from functions import save_clusters
 
 def hierarchical(G):
     
@@ -32,20 +33,6 @@ def hierarchical(G):
         clusters.add((s[0]|s[1]))
     
     # We save each cluster in a different file
-    with open("HIERARCHICAL/optimized/cluster0.txt", "w") as f:
-        for element in clusters[0]:
-            f.write(element + "\n")
-
-    with open("HIERARCHICAL/optimized/cluster1.txt", "w") as f:
-        for element in clusters[1]:
-            f.write(element + "\n")
-
-    with open("HIERARCHICAL/optimized/cluster2.txt", "w") as f:
-        for element in clusters[2]:
-            f.write(element + "\n")
-
-    with open("HIERARCHICAL/optimized/cluster3.txt", "w") as f:
-        for element in clusters[3]:
-            f.write(element + "\n")
+    save_clusters("HIERARCHICAL/optimized", clusters[0], clusters[1], clusters[2], clusters[3])
 
     return clusters
