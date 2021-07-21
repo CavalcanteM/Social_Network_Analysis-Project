@@ -1,12 +1,17 @@
 import csv
-import random
 import math
 from sklearn.linear_model import LinearRegression
 import time
-import sys
-sys.path.append("..")
-from exercise3.dataset_generator import read_dataset, generate_alt_dataset
+from dataset_generator import read_dataset, generate_alt_dataset
 from hill_climbing import HillClimbing
+from iclr import ICLogisticRegression
+
+
+###########################################
+############   Hill Climbing   ############
+###########################################
+
+print("############   Hill Climbing   ############\n")
 
 data_two_feature = []
 labels_two_feature = []
@@ -122,3 +127,125 @@ for el1, el2 in zip(data_with_star, data_with_zero):
         break
 
 print("Truthful altered: ", truthful)
+
+
+######################################################################
+############   Incentive Compatible Logistic Regression   ############
+######################################################################
+
+print("\n\n############   Incentive Compatible Logistic Regression   ############\n")
+
+data = []
+with open("../training_exp1_first.csv") as f:
+    rows = csv.reader(f, delimiter=",")
+
+    for row in rows:
+        for i in range(len(row)):
+            if row[i] == "*":
+                row[i] = -1
+
+        new_row = [int(row[0]), int(row[1]), int(row[2]), int(row[3])]
+        data.append(new_row)
+
+# First Logistic Regression training
+start = time.time()
+lr = 10**-4
+delta = 10**-5
+beta = [-5,0.5,0,0.1] # [b0, b1, b2, b3]
+parameters = ICLogisticRegression(data, lr, delta, beta)
+end = time.time()
+print("Tempo addestramento primo classificatore: ", end - start)
+
+data = []
+with open("../training_exp1_second.csv") as f:
+    rows = csv.reader(f, delimiter=",")
+
+    for row in rows:
+        for i in range(len(row)):
+            if row[i] == "*":
+                row[i] = -1
+
+        new_row = [int(row[0]), int(row[1]), int(row[2]), int(row[3])]
+        data.append(new_row)
+
+start = time.time()
+# Second Logistic Regression training
+beta = [-5, 0.6, 0.4, 0.3] # [b0, b1, b2, b3]
+parameters1 = ICLogisticRegression(data, lr, delta, beta)
+end = time.time()
+print("Tempo addestramento secondo classificatore: ", end - start)
+
+samples = []
+with open("../training.csv") as f:
+    rows = csv.reader(f, delimiter=",")
+
+    for row in rows:
+        for i in range(len(row)):
+            if row[i] == "*":
+                row[i] = -1
+
+        new_row = [int(row[0]), int(row[1]), int(row[2]), int(row[3])]
+        samples.append(new_row)
+
+start = time.time()
+# Classification of test samples
+right = 0
+wrong = 0
+for item in samples:
+    k = parameters[0] + item[0]*parameters[1] + item[1]*parameters[2] + item[2]*parameters[3]
+    value = (1 / (1 + math.exp(-k)))
+    if value >= 0.5: # 2 o 3 stars
+        k1 = parameters1[0] + item[0]*parameters1[1] + item[1]*parameters1[2] + item[2]*parameters1[3]
+        value1 = (1 / (1 + math.exp(-k1)))
+        if value1 >= 0.5: # 3 stars
+            pred_label = 3
+        else: # 2 stars
+            pred_label = 2
+    else: # 1 star
+        pred_label = 1
+
+    if pred_label == item[3]:
+        right += 1
+    else:
+        wrong += 1
+        print(item)
+
+print("Samples classificati correttamente: ", right)
+print("Samples non classificati correttamente: ", wrong)
+end = time.time()
+print("Tempo classificazione samples: ", end - start)
+
+truthful = 1
+for el_with_star, el_with_zero in zip(data_with_star,data_with_zero):
+    new_el_with_star = []
+    for i in el_with_star:
+        if i == '*':
+            new_el_with_star.append(-1)
+        else:
+            new_el_with_star.append(int(i))
+    k_with_star = parameters[0] + int(new_el_with_star[0])*parameters[1] + int(new_el_with_star[1])*parameters[2] + int(new_el_with_star[2])*parameters[3]
+    k_with_zero = parameters[0] + int(el_with_zero[0])*parameters[1] + int(el_with_zero[1])*parameters[2] + int(el_with_zero[2])*parameters[3]
+    value_with_star = (1 / (1 + math.exp(-k_with_star)))
+    value_with_zero = (1 / (1 + math.exp(-k_with_zero)))
+    if value_with_star >= 0.5: # 2 o 3 stars
+        k1 = parameters1[0] + int(new_el_with_star[0])*parameters1[1] + int(new_el_with_star[1])*parameters1[2] + int(new_el_with_star[2])*parameters1[3]
+        value1 = (1 / (1 + math.exp(-k1)))
+        if value1 >= 0.5: # 3 stars
+            pred_label_with_star = 3
+        else: # 2 stars
+            pred_label_with_star = 2
+    else: # 1 star
+        pred_label_with_star = 1
+    if value_with_zero >= 0.5: # 2 o 3 stars
+        k1 = parameters1[0] + int(el_with_zero[0])*parameters1[1] + int(el_with_zero[1])*parameters1[2] + int(el_with_zero[2])*parameters1[3]
+        value1 = (1 / (1 + math.exp(-k1)))
+        if value1 >= 0.5: # 3 stars
+            pred_label_with_zero = 3
+        else: # 2 stars
+            pred_label_with_zero = 2
+    else: # 1 star
+        pred_label_with_zero = 1
+    if pred_label_with_star > pred_label_with_zero:
+        truthful = 0
+
+print("LR Truthful: ", truthful)

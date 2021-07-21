@@ -15,7 +15,7 @@ def MinCut(d1, d2):
             G1.add_edge(x, node1, weight=float('inf'))
             G1.add_edge(x, node2, weight=float('inf'))
 
-    value, partitions = nx.algorithms.flow.minimum_cut(G1, 's', 't', capacity='weight')
+    _, partitions = nx.algorithms.flow.minimum_cut(G1, 's', 't', capacity='weight')
     partitions[0].remove('s')
     partitions[1].remove('t')
 
@@ -41,7 +41,7 @@ def MinCut(d1, d2):
             if node2 in partitions[1]:
                 G3.add_edge(x, node2, weight=float('inf'))
 
-    value1, partitions1 = nx.algorithms.flow.minimum_cut(G2, 's', 't', capacity='weight')
-    value2, partitions2 = nx.algorithms.flow.minimum_cut(G3, 's', 't', capacity='weight')
+    _, partitions1 = nx.algorithms.flow.minimum_cut(G2, 's', 't', capacity='weight')
+    _, partitions2 = nx.algorithms.flow.minimum_cut(G3, 's', 't', capacity='weight')
 
     return partitions1[0], partitions1[1] | partitions2[0], partitions2[1]

@@ -30,14 +30,9 @@ def ICLogisticRegression(data, lr, delta, parameters):
             error += abs(pred_label - item[3])
         
         loss = error/len(data)
-        #print("LOSS " + str(loss))
         delta_g = abs(loss - prev_loss)
-        # if t % 10 == 0:
-        #     print("Delta: " + str(delta_g))
         prev_loss = loss
         error = 0
         t = t + 1
 
-    # print(t)
-    # print(delta_g)
     return parameters
