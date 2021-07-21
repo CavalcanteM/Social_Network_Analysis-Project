@@ -3,7 +3,9 @@ import networkx as nx
 from priorityq import PriorityQueue
 from joblib import Parallel, delayed
 import itertools as it
-from exercise1_final.shapley import shapley_degree, shapley_threshold
+import sys
+sys.path.append("..")
+from exercise1_final.shapley import shapley_degree, shapley_threshold       # To make the exercise working, you have to import the functions from file shapley.py in exercise1_final folder
 
 
 # Utility used for split a vector data in chunks of the given size.
