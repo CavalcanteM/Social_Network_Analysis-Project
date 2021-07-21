@@ -74,20 +74,13 @@ for k in G.nodes():
 
 clustering_coeff = (3 * triangles) / sum
 
-# r = 3
-# k = 100
-# k = 70
-# k = 40
-# k = 30
-# q = 1.5
-
-# Watts-Strongatz parameters
+# Watts-Strongatz proposed parameters
 n = 10000
 r = 5
-k = 10
+k = 7 
 q = 2
 
-# Generate proposed network
+# Generate network with proposed parameters
 start = int(time.time())
 G1 = GenWS2DG(n, r, k, q)
 end = int(time.time())
