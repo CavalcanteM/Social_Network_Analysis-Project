@@ -41,6 +41,7 @@ def bfs(G, u):
     return nodes, distances
 
 
+# Function used by the parallel version of Shapley closeness
 def shapley_closeness(G, nodes):
     shapley_values = {v: 0 for v in G.nodes()}
     list_nodes = list(nodes)

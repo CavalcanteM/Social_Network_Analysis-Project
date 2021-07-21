@@ -26,10 +26,10 @@ def load_graph():
     return G
 
 
-p = [0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95]   # Vettore dei candidati
-c = random.randint(0, len(p)-1)     # Candidato da favorire
-B = 200     # Numero di seed da selezionare
-b = random_vector(10000)     # Vettore delle single-peaked preference
+p = [0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95]   # Candidates vector
+c = random.randint(0, len(p)-1)     # Selected candidate
+B = 200     # Number of seed to select
+b = random_vector(10000)     # single-peaked preference vector
 G = load_graph()
 
 start = time.time()

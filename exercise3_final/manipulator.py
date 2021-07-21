@@ -3,25 +3,25 @@ import numpy as np
 from selection import selector
 
 
-# p è il vettore che indica l'orientamento politico dei candidati
-# b è il vettore che indica l'orientamento politico dei votanti
+# p is the vector that contains the politic orientation of each candidate
+# b is the vector that contains the politic orientation of each voter
 def plurality_voting_rule(p, b):
-    votes = {i: 0 for i in range(len(p))}   # Dizionario contenente il numero di voti per ogni candidato
+    votes = {i: 0 for i in range(len(p))}   # Dict that contains the number of votes for each candidate
 
-    # Per ogni orientamento politico dei votanti andiamo a controllare il candidato a minima distanza
+    # For each voter's politic orientation we check the minimum distance candidate
     for i in range(len(b)):
-        min_index = 0          # Settiamo il primo candidato come quello a minima distanza
-        min_difference = abs(p[0] - b[i])   # Settiamo la distanza tra il votante i e il candidato 0
-        # Ci salviamo il segno in quanto, in caso di pareggio, dobbiamo scegliere il candidato a sinistra
+        min_index = 0          # Set the first candidate as the initial minimum distance candidate
+        min_difference = abs(p[0] - b[i])   # Save the distance between the voter i and candidate 0
+        # We save the sign, because in case of draw, win the the leftmost candidate
         sign = np.sign(p[0] - b[i])
-        for x in range(1, len(p)):  # Partiamo da 1 perché il candidato 0 lo abbiamo assegnato come min di default
+        for x in range(1, len(p)):  # Start from 1, because candidate 0 is the default
             diff = abs(p[x] - b[i])
             if diff < min_difference or (diff == min_difference and sign == 1):
-                # Il candidato x è quello a minima distanza
+                # The candidate x is the actual minimum distance candidate
                 min_index = x
                 min_difference = diff
                 sign = np.sign(p[x] - b[i])
-        # Il candidato min_index ha ricevuto un voto dal votante i
+        # The candidate min_index receveid a vote from the voter i
         votes[min_index] += 1
 
     return votes
@@ -54,17 +54,17 @@ def FriedkinJohnsen(G, stubborness, belief):
     return opinions
 
 
-# G -> grafo
-# p -> lista dell'orientamento politico dei candidati
-# c -> indice del candidato da favorire
-# B -> numero di seeds da selezionare
-# b -> il vettore delle belief iniziali
+# G -> graph
+# p -> list of the politic orientation of each candidate
+# c -> index of the selected candidate
+# B -> number of seeds to select
+# b -> vector of initial belief
 def manipulation(G, p, c, B, b):
     votes = plurality_voting_rule(p, b)
     # SELECTION OF B NODES
     seeds = selector(G, B)
 
-    # Definizione della stubborness
+    # Stubborness definition
     stubborness = np.ones(G.number_of_nodes())/2
 
     for x in seeds:
