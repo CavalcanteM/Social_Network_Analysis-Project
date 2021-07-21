@@ -29,9 +29,11 @@ def sum_bfs(G, u):
     return sum
 
 
+# Naive implementation of closeness centrality
 def closeness_centrality(G):
     pq = PriorityQueue()
 
+    # Computation of closeness for each node
     for node in G.nodes():
         closeness = (G.number_of_nodes()-1)/sum_bfs(G, node)
         pq.add(node, -closeness)

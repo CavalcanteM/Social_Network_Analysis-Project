@@ -43,6 +43,7 @@ def betweenness_centrality(G):
             if c != s:
                 node_btw[c] += vflow[c]  #  betweenness of a vertex is the sum over all s of the number of shortest paths from s to other nodes using that vertex
 
+    # Save the top500
     pq = PriorityQueue()
     for node in G.nodes():
         pq.add(node, -node_btw[node])
@@ -106,10 +107,12 @@ def parallel_betweenness(G, nodes):
 
 # Computes edge and vertex betweenness of the graph in input
 def parallel_betweenness_centrality(G, j):
+    # parallel call with j job
     with Parallel(n_jobs=j) as parallel:
         result = parallel(delayed(parallel_betweenness)(G, X)
                           for X in chunks(G.nodes(), math.ceil(G.number_of_nodes() / j)))
 
+    # Result fusion of the different job
     node_btw = {node: 0 for node in G.nodes()}
     for res in result:
         for node in res.keys():
@@ -136,35 +139,18 @@ def chunks_set(data, size):
         yield {k for k in it.islice(idata, size)}
 
 
-# Function used to select a subset of nodes in which the excluded elements are not neighbors to each other.
-# We decided to include all the neighbors of an excluded node because excluding many node of a component can cause
-# a calculed beetweenness value too smaller than the real beetweenness value for the node in that component.
-def sampling_operation(G):
-    nodes = list(G.nodes())
-    final_set = set()
-    while len(nodes) > 0:
-        # The random node chosen is not included in the final set, but his neighbors yes
-        v = random.choice(nodes)
-        nodes.remove(v)
-        for u in G.neighbors(v):
-            final_set.add(u)
-            if u in nodes:
-                nodes.remove(u)
-    print(len(final_set))
-    return final_set
-
-
 # Computes vertex betweenness of the graph in input, but taking into account the BFS on a subset of nodes.
 # In this version we use the parallel implementation because in the Naive version we prove that he return exactly
 # same result, but in a faster way.
-def sampled_betweenness_centrality(G, j):
-    #nodes = sampling_operation(G)
-    nodes = random.sample(G.nodes(), int(len(G.nodes()) * 0.5))
+def sampled_betweenness_centrality(G, j, ratio):
+    # Samplig operation
+    nodes = random.sample(G.nodes(), int(len(G.nodes()) * ratio))
     print(len(nodes))
     with Parallel(n_jobs=j) as parallel:
         result = parallel(delayed(parallel_betweenness)(G, X)
                           for X in chunks_set(nodes, math.ceil(len(nodes) / j)))
 
+    # Result fusion of the different job
     node_btw = {node: 0 for node in G.nodes()}
     for res in result:
         for node in res.keys():
@@ -176,7 +162,7 @@ def sampled_betweenness_centrality(G, j):
         pq.add(node, -node_btw[node])
 
     i = 0
-    with open("BETWEENNESS/sampled0.5_betweenness" + str(j) + ".txt", "w") as f:
+    with open("BETWEENNESS/sampled" + str(ratio) + "_betweenness" + str(j) + ".txt", "w") as f:
         while i < 500:
             node = pq.pop()
             f.write(node + '\n')

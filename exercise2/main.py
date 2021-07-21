@@ -26,5 +26,5 @@ G = load_graph()
 
 print("SAMPLED VERSION")
 start = time.time()
-sampled_betweenness_centrality(G, 4)
+sampled_betweenness_centrality(G, 4, 0.05)
 print(time.time()-start)
