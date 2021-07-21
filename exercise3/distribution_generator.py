@@ -5,7 +5,7 @@ import random
 # label 2 and 3.
 # We assume that the values have a probability D+(x) related how much is high the mean of the three score in respect
 # with a threshold value defined to be 2 for the cut 1-23 and 4 for the cut 2-3
-def dataset_generator():
+def dataset_generator(min_samples, max_samples):
     with open('../training.csv', 'r') as f:
         data = csv.reader(f, delimiter=',')
 
@@ -45,7 +45,7 @@ def dataset_generator():
                         else:
                             p2 = 0
 
-                        for _ in range(100):
+                        for _ in range(random.choice(range(min_samples,max_samples+1))):
                             r = random.random()
 
                             if r < p0:

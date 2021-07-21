@@ -4,8 +4,11 @@ from mincut import MinCut
 import time
 
 # Distribution generator for min cut algorithm
+MIN_SAMPLES = 100
+MAX_SAMPLES = 500
+
 start = time.time()
-dataset_generator() 
+dataset_generator(MIN_SAMPLES, MAX_SAMPLES) 
 d0, d1, d2 = distribution()
 end = time.time()
 print("Tempo generazione distribuzione: ", end - start)
