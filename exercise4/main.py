@@ -2,10 +2,10 @@ import csv
 import math
 from sklearn.linear_model import LinearRegression
 import time
-from dataset_generator import read_dataset, generate_alt_dataset
+from dataset_generator import read_dataset_HC, generate_alt_dataset_HC, read_dataset_ICLR, generate_alt_dataset_ICLR
 from hill_climbing import HillClimbing
 from iclr import ICLogisticRegression
-
+import random
 
 ###########################################
 ############   Hill Climbing   ############
@@ -20,19 +20,19 @@ labels_three_feature = []
 test = []
 labels_test = []
 
-# Dataset standard
+# Loading the standard dataset, i.e. the one with all the 288 cases
 filename = "../training.csv"
 data_two_feature, labels_two_feature, data_three_feature, labels_three_feature, \
-    test, labels_test = read_dataset(filename)
+    test, labels_test = read_dataset_HC(filename)
 
-# Addestramento classificatori con dataset standard
+# Training the classifiers on the standard dataset
 start = time.time()
 two_feature = LinearRegression().fit(data_two_feature, labels_two_feature)
 three_feature = LinearRegression().fit(data_three_feature, labels_three_feature)
 end = time.time()
-print("Tempo addestramento classificatori: ", end - start)
+print("Training time: ", end - start)
 
-# Classificazione su test set
+# Classification of the samples in the test set 
 start = time.time()
 correct = 0
 wrong = 0
@@ -46,27 +46,27 @@ for sample, label in zip(test, labels_test):
         print(sample, label, pred_label)
 
 end = time.time()
-print("Tempo classificazione samples: ", end - start)
-print("Wrong:", wrong)
-print("Correct:", correct)
+print("Classification of the test set time: ", end - start)
+print("Wrong: ", wrong)
+print("Correct: ", correct)
 
 data_two_feature_altered = []
 labels_two_feature_altered = []
 data_three_feature_altered = []
 labels_three_feature_altered = []
 
-# Dataset alterato
+# Generation of the altered dataset starting from the standard one
 data_two_feature_altered, labels_two_feature_altered, data_three_feature_altered, \
-    labels_three_feature_altered = generate_alt_dataset(data_two_feature, labels_two_feature, data_three_feature, labels_three_feature, 10000, 20000)
+    labels_three_feature_altered = generate_alt_dataset_HC(data_two_feature, labels_two_feature, data_three_feature, labels_three_feature, 100, 500)
 
-# Addestramento classificatori con dataset alterato
+# Training the classifiers on the altered dataset
 start = time.time()
 two_feature_altered = LinearRegression().fit(data_two_feature_altered, labels_two_feature_altered)
 three_feature_altered = LinearRegression().fit(data_three_feature_altered, labels_three_feature_altered)
 end = time.time()
-print("Tempo addestramento classificatori: ", end - start)
+print("Training time (altered version): ", end - start)
 
-# Classificazione su test set con classificatore alterato
+# Classification of the samples in the test set on the altered version
 start = time.time()
 correct = 0
 wrong = 0
@@ -80,13 +80,15 @@ for sample, label in zip(test, labels_test):
         print(sample, label, pred_label)
 
 end = time.time()
-print("Tempo classificazione samples: ", end - start)
-print("Wrong:", wrong)
-print("Correct:", correct)
+print("Classification of the test set time (altered version): ", end - start)
+print("Wrong: ", wrong)
+print("Correct: ", correct)
 
 # Truthfulness verification
 data_with_star = []
 data_with_zero = []
+# Loading all the 288 possible cases and selecting the ones that have a '*' in service or value features, 
+# and generating the corrisponding sample with a 0 on that feature
 with open("../training.csv", "r") as f:
     rows = csv.reader(f, delimiter=",")
     for row in rows:
@@ -105,19 +107,16 @@ with open("../training.csv", "r") as f:
 # Truthfulness for standard dataset classifier
 truthful = 1
 for el1, el2 in zip(data_with_star, data_with_zero):
+    # If the sample with a '*' receives a scores greater than the one with a value on that feature, the classifier is not truthful
     if HillClimbing(el1,two_feature,three_feature) > HillClimbing(el2,two_feature,three_feature):
-        print(el1)
-        print(HillClimbing(el1,two_feature,three_feature))
-        print(el2)
-        print(HillClimbing(el2,two_feature,three_feature))
         truthful = 0
         break
 
-print("Truthful normal: ", truthful)
-
+print("Truthful: ", truthful == 1)
 # Truthfulness for altered dataset classifier
 truthful = 1
 for el1, el2 in zip(data_with_star, data_with_zero):
+    # If the sample with a '*' receives a scores greater than the one with a value on that feature, the classifier is not truthful
     if HillClimbing(el1,two_feature_altered,three_feature_altered) > HillClimbing(el2,two_feature_altered,three_feature_altered):
         print(el1)
         print(HillClimbing(el1,two_feature_altered,three_feature_altered))
@@ -126,8 +125,7 @@ for el1, el2 in zip(data_with_star, data_with_zero):
         truthful = 0
         break
 
-print("Truthful altered: ", truthful)
-
+print("Truthful (altered): ", truthful == 1)
 
 ######################################################################
 ############   Incentive Compatible Logistic Regression   ############
@@ -135,117 +133,114 @@ print("Truthful altered: ", truthful)
 
 print("\n\n############   Incentive Compatible Logistic Regression   ############\n")
 
-data = []
-with open("../training_exp1_first.csv") as f:
-    rows = csv.reader(f, delimiter=",")
+# Loading the standard dataset, i.e. the one with all the 288 cases, and generating the altered version
+data, test = read_dataset_ICLR(filename)
+data = generate_alt_dataset_ICLR(data, 100, 500)
 
-    for row in rows:
-        for i in range(len(row)):
-            if row[i] == "*":
-                row[i] = -1
+# Generating the dataset for the first LR, i.e. assigns label = 0 to samples with 1 star, label = 1 to samples with 2 or 3 stars
+data1 = []
+for row in data:
+    if row[-1] == 1:
+        label = 0
+    else:
+        label = 1
+    data1.append([int(row[0]), int(row[1]), int(row[2]), label])
 
-        new_row = [int(row[0]), int(row[1]), int(row[2]), int(row[3])]
-        data.append(new_row)
+# Generating the dataset for the first LR, i.e. assigns label = 0 to 2-star samples, label = 1 to 3-star samples, thus excluding all 1-star samples
+data2 = []
+for row in data:
+    if row[-1] == 1:
+        pass
+    elif row[-1] == 2:
+        label = 0
+    else:
+        label = 1
+    data2.append([int(row[0]), int(row[1]), int(row[2]), label])
 
 # First Logistic Regression training
 start = time.time()
 lr = 10**-4
-delta = 10**-5
-beta = [-5,0.5,0,0.1] # [b0, b1, b2, b3]
-parameters = ICLogisticRegression(data, lr, delta, beta)
+delta = 10**-5 
+beta = [-random.random(),random.random(),random.random(),random.random()] #beta is selected randomly 
+parameters = ICLogisticRegression(data1, lr, delta, beta)
 end = time.time()
-print("Tempo addestramento primo classificatore: ", end - start)
-
-data = []
-with open("../training_exp1_second.csv") as f:
-    rows = csv.reader(f, delimiter=",")
-
-    for row in rows:
-        for i in range(len(row)):
-            if row[i] == "*":
-                row[i] = -1
-
-        new_row = [int(row[0]), int(row[1]), int(row[2]), int(row[3])]
-        data.append(new_row)
+print("Training time first classifier: ", end - start)
 
 start = time.time()
 # Second Logistic Regression training
-beta = [-5, 0.6, 0.4, 0.3] # [b0, b1, b2, b3]
-parameters1 = ICLogisticRegression(data, lr, delta, beta)
+beta = [-random.random(),random.random(),random.random(),random.random()] #beta is selected randomly 
+parameters1 = ICLogisticRegression(data2, lr, delta, beta)
 end = time.time()
-print("Tempo addestramento secondo classificatore: ", end - start)
+print("Training time second classifier: ", end - start)
 
-samples = []
-with open("../training.csv") as f:
-    rows = csv.reader(f, delimiter=",")
 
-    for row in rows:
-        for i in range(len(row)):
-            if row[i] == "*":
-                row[i] = -1
-
-        new_row = [int(row[0]), int(row[1]), int(row[2]), int(row[3])]
-        samples.append(new_row)
-
+# Classification of the samples in the test set
 start = time.time()
-# Classification of test samples
 right = 0
 wrong = 0
-for item in samples:
+for item in test:
     k = parameters[0] + item[0]*parameters[1] + item[1]*parameters[2] + item[2]*parameters[3]
     value = (1 / (1 + math.exp(-k)))
-    if value >= 0.5: # 2 o 3 stars
+    if value >= 0.5: # the sample has a score of 2 o 3 stars
         k1 = parameters1[0] + item[0]*parameters1[1] + item[1]*parameters1[2] + item[2]*parameters1[3]
         value1 = (1 / (1 + math.exp(-k1)))
-        if value1 >= 0.5: # 3 stars
+        if value1 >= 0.5: # the sample has a score of 3 stars
             pred_label = 3
-        else: # 2 stars
+        else: # the sample has a score of 2 stars
             pred_label = 2
-    else: # 1 star
+    else: # the sample has a score of 1 stars
         pred_label = 1
-
+    # Check if the predicted label is different from the baseline in the ground truth
     if pred_label == item[3]:
         right += 1
     else:
         wrong += 1
-        print(item)
 
-print("Samples classificati correttamente: ", right)
-print("Samples non classificati correttamente: ", wrong)
 end = time.time()
-print("Tempo classificazione samples: ", end - start)
+print("Classification of the test set time: ", end - start)
+print("Wrong: ", wrong)
+print("Correct: ", correct)
 
+# Truthfulness 
 truthful = 1
 for el_with_star, el_with_zero in zip(data_with_star,data_with_zero):
+    # We have to substitute every '*' values with -1
     new_el_with_star = []
     for i in el_with_star:
         if i == '*':
             new_el_with_star.append(-1)
         else:
             new_el_with_star.append(int(i))
+    # Compute k value for the element with a '*'
     k_with_star = parameters[0] + int(new_el_with_star[0])*parameters[1] + int(new_el_with_star[1])*parameters[2] + int(new_el_with_star[2])*parameters[3]
+    # Compute k value for the element without a '*'
     k_with_zero = parameters[0] + int(el_with_zero[0])*parameters[1] + int(el_with_zero[1])*parameters[2] + int(el_with_zero[2])*parameters[3]
+    # Compute value for the element with a '*'
     value_with_star = (1 / (1 + math.exp(-k_with_star)))
+    # Compute value for the element without a '*'
     value_with_zero = (1 / (1 + math.exp(-k_with_zero)))
-    if value_with_star >= 0.5: # 2 o 3 stars
+    # Classifign the element with a star
+    if value_with_star >= 0.5: # the sample with '*' has a score of 2 o 3 stars
         k1 = parameters1[0] + int(new_el_with_star[0])*parameters1[1] + int(new_el_with_star[1])*parameters1[2] + int(new_el_with_star[2])*parameters1[3]
         value1 = (1 / (1 + math.exp(-k1)))
-        if value1 >= 0.5: # 3 stars
+        if value1 >= 0.5: # the sample with '*' has a score of 3 stars
             pred_label_with_star = 3
-        else: # 2 stars
+        else: # the sample with '*' has a score of 2 stars
             pred_label_with_star = 2
-    else: # 1 star
+    else: # # the sample with '*' has a score of 1 star
         pred_label_with_star = 1
-    if value_with_zero >= 0.5: # 2 o 3 stars
+    # Classifign the element without a star
+    if value_with_zero >= 0.5: # the sample without '*' has a score of 2 o 3 stars
         k1 = parameters1[0] + int(el_with_zero[0])*parameters1[1] + int(el_with_zero[1])*parameters1[2] + int(el_with_zero[2])*parameters1[3]
         value1 = (1 / (1 + math.exp(-k1)))
-        if value1 >= 0.5: # 3 stars
+        if value1 >= 0.5: # the sample without '*' has a score of 3 stars
             pred_label_with_zero = 3
-        else: # 2 stars
+        else: # the sample without '*' has a score of 2 stars
             pred_label_with_zero = 2
-    else: # 1 star
+    else: # the sample without '*' has a score of 1 star
         pred_label_with_zero = 1
+    # If the sample with a '*' receives a scores greater than the one with a value on that feature, the classifier is not truthful
     if pred_label_with_star > pred_label_with_zero:
         truthful = 0
 
-print("LR Truthful: ", truthful)
+print("LR Truthful: ", truthful == 1)
