@@ -14,6 +14,7 @@ def chunks(data, size):
         yield {k: data[k] for k in it.islice(idata, size)}
 
 
+# BFS used by the shapley closeness
 def bfs(G, u):
     visited = set()  # nodi visitati
     visited.add(u)
@@ -31,6 +32,7 @@ def bfs(G, u):
 
     sort_dist = sorted(dist.items(), key=lambda x: x[1])
 
+    # Creation of the list in which the i-th element in nodes is associated the i-th element in distances
     nodes = []
     distances = []
     for i in sort_dist:
@@ -92,6 +94,7 @@ def selector(G, B):
     # final dict that will contain the sum of the normalized shapley values
     final_dict = dict()
 
+    # Normalization of the values of the different shapley values and population of final_dict
     max_c = max(sh_cl.values())
     min_c = min(sh_cl.values())
     max_d = max(sh_d.values())

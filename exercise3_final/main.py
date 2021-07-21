@@ -5,6 +5,7 @@ from manipulator import manipulation
 import time
 
 
+# Function used for the creation of a random vector with length n and element with 0<=value<=1
 def random_vector(n):
     v = []
     for _ in range(n):

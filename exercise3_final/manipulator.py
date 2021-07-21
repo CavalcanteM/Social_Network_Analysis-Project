@@ -43,7 +43,6 @@ def FriedkinJohnsen(G, stubborness, belief):
                 for v in G.neighbors(str(i)):
                     sum += prev_opinions[int(v)] / G.degree(str(i))
                 opinions[i] = stubborness[i] * belief[i] + (1 - stubborness[i]) * sum
-                # if opinions[i] == prev_opinions[i]:
                 if opinions[i] - prev_opinions[i] < 10 ** -5:
                     stop += 1
 
