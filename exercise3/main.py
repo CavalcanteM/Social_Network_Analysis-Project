@@ -6,13 +6,13 @@ import time
 # Distribution generator for min cut algorithm
 start = time.time()
 dataset_generator() 
-d1, d2 = distribution()
+d0, d1, d2 = distribution()
 end = time.time()
 print("Tempo generazione distribuzione: ", end - start)
 
 # Min cut algorithm execution
 start = time.time()
-one_star_partition, two_star_partition, three_star_partition = MinCut(d1, d2)
+one_star_partition, two_star_partition, three_star_partition = MinCut(d0, d1, d2)
 end = time.time()
 print("Tempo creazione partizioni: ", end - start)
 
@@ -49,28 +49,28 @@ print("Tempo classificazione samples: ", end - start)
 
 # Truthfulness verification
 start = time.time()
-data_with_zero = []
-data_with_star = []
-for row in two_star_partition:
-    star_found = 0
-    new_row = []
-    for i in row:
-        if i == "*":
-            new_row.append("0")
-            star_found = 1
-        else:
-            new_row.append(i)
-    if star_found == 1:
-        data_with_zero.append(new_row)
-        data_with_star.append(row)
-
 truthful = 1
-for item in data_with_zero:
-    if (item[0], item[1], item[2]) in one_star_partition:
-        print(item)
-        truthful = 0
-        break
+for row in one_star_partition:
+    if row[1] != '*' and row[2] != '*':
+        new_row1 = (row[0], '*', row[2])
+        if new_row1 not in one_star_partition:
+            truthful = 0
+            break
+        new_row2 = (row[0], row[1], '*')
+        if new_row2 not in one_star_partition:
+            truthful = 0
+            break
 
-print("Truthful: ", truthful)
+for row in two_star_partition:
+    if row[1] != '*' and row[2] != '*':
+        new_row1 = (row[0], '*', row[2])
+        if new_row1 in three_star_partition:
+            truthful = 0
+            break
+        new_row2 = (row[0], row[1], '*')
+        if new_row2 in three_star_partition:
+            truthful = 0
+            break
 end = time.time()
+print("Truthful: ", truthful)
 print("Tempo verifica truthfulness: ", end - start)

@@ -1,14 +1,14 @@
 import networkx as nx
 
-def MinCut(d1, d2):
+def MinCut(d0, d1, d2):
     G1 = nx.DiGraph()
     G2 = nx.DiGraph()
     G3 = nx.DiGraph()
-    for x in d1.keys():
-        G1.add_edge(x, 't', weight=d1[x])
-        G1.add_edge('s', x, weight=1-d1[x])
+    for x in d0.keys():
+        G1.add_edge(x, 't', weight=d0[x])
+        G1.add_edge('s', x, weight=1-d0[x])
 
-    for x in d1.keys():
+    for x in d0.keys():
         if x[1] != '*' and x[2] != '*':
             node1 = (x[0], x[1], '*')
             node2 = (x[0], '*', x[2])
@@ -43,5 +43,11 @@ def MinCut(d1, d2):
 
     _, partitions1 = nx.algorithms.flow.minimum_cut(G2, 's', 't', capacity='weight')
     _, partitions2 = nx.algorithms.flow.minimum_cut(G3, 's', 't', capacity='weight')
+
+    partitions1[0].remove('s')
+    partitions1[1].remove('t')
+
+    partitions2[0].remove('s')
+    partitions2[1].remove('t')
 
     return partitions1[0], partitions1[1] | partitions2[0], partitions2[1]
