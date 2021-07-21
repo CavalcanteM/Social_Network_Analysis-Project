@@ -27,19 +27,19 @@ with open('../training.csv', 'r') as f:
     data = csv.reader(f, delimiter=',')
     for item in data:
         x = (item[0], item[1], item[2])
-        if x in one_star_partition:
+        if x in one_star_partition: # 1 star is assigned
             if item[3] == '1':
                 correct += 1
             else:
                 wrong += 1
                 print(x, item[3], '1')
-        elif x in two_star_partition:
+        elif x in two_star_partition: # 2 star is assigned
             if item[3] == '2':
                 correct += 1
             else:
                 wrong += 1
                 print(x, item[3], '2')
-        else:
+        else: # 3 star is assigned
             if item[3] == '3':
                 correct += 1
             else:
@@ -56,22 +56,22 @@ truthful = 1
 for row in one_star_partition:
     if row[1] != '*' and row[2] != '*':
         new_row1 = (row[0], '*', row[2])
-        if new_row1 not in one_star_partition:
+        if new_row1 not in one_star_partition: # Not truthful - a sample with (Food, Service, Value) is classified less than the corresponding (Food, *, Value) sample
             truthful = 0
             break
         new_row2 = (row[0], row[1], '*')
-        if new_row2 not in one_star_partition:
+        if new_row2 not in one_star_partition: # Not truthful - a sample with (Food, Service, Value) is classified less than the corresponding (Food, Service, *) sample
             truthful = 0
             break
 
 for row in two_star_partition:
     if row[1] != '*' and row[2] != '*':
         new_row1 = (row[0], '*', row[2])
-        if new_row1 in three_star_partition:
+        if new_row1 in three_star_partition: # Not truthful - a sample with (Food, Service, Value) is classified less than the corresponding (Food, *, Value) sample
             truthful = 0
             break
         new_row2 = (row[0], row[1], '*')
-        if new_row2 in three_star_partition:
+        if new_row2 in three_star_partition: # Not truthful - a sample with (Food, Service, Value) is classified less than the corresponding (Food, Service, *) sample
             truthful = 0
             break
 end = time.time()

@@ -66,7 +66,7 @@ def dataset_generator(min_samples, max_samples):
                                 new_item = [item[0], item[1], item[2], '0']
                             new_data3.writerow(new_item)
 
-
+# Reads the distributions used to create the partitions of the MinCut algorithm
 def distribution():
     with open('dataset_distribution1.csv', 'r') as f0:
         data0 = csv.reader(f0, delimiter=',')

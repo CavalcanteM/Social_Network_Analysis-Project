@@ -2,6 +2,7 @@ import networkx as nx
 import math
 import itertools as it
 from joblib import Parallel, delayed
+from priorityq import PriorityQueue
 
 #DIAMETER
 #Classical algorithm: if runs a BFS for each node, and returns the height of the tallest BFS tree
